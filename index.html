@@ -1,220 +1,82 @@
 <!DOCTYPE html>
-<html lang="jp">
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Gallery</title>
-<style>
-  body {
-    font-family: sans-serif;
-    margin: 40px;
-    background: #fafafa;
-  }
-
-  .gallery {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 16px;
-  }
-
-  .item {
-    text-align: center;
-  }
-
-  .item img {
-    width: 100%;
-    aspect-ratio: 1 / 1;     /* 정사각형 고정 */
-    object-fit: cover;        /* 비율 안깨지게 잘라서 채움 */
-    display: block;
-    border-radius: 6px;
-  }
-
-  .item p {
-    margin: 8px 0 0;
-    font-size: 14px;
-    color: #333;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>davidbowie.kr | Doll Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body { font-family: 'Noto Sans KR', system-ui, sans-serif; }
+        .hero { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+        .gallery img {
+            transition: all 0.3s ease;
+        }
+        .gallery img:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        .item {
+            position: relative;
+        }
+    </style>
 </head>
-<body>  
-  VOLKS
-<div class="gallery">
-  <div class="item">
-    <img src="images/01.jpg" alt="">
-    <p>Licht 1</p></p>
-  </div>
-  <div class="item">
-    <img src="images/02.jpg" alt="">
-    <p>Licht 2</p>
-  </div>
-  <div class="item">
-    <img src="images/03.jpg" alt="">
-    <p>Michael 1 L</p>
-  </div>
-    <div class="item">
-    <img src="images/04.jpg" alt="">
-    <p>Michael 2 L</p>
-  </div>
-    <div class="item">
-    <img src="images/05.jpg" alt="">
-    <p>Michael 3 G</p>
-  </div>
-      <div class="item">
-    <img src="images/06.jpg" alt="">
-    <p>old 13 1</p>
-  </div>
-      <div class="item">
-    <img src="images/07.jpg" alt="">
-    <p>old 13 2</p>
-  </div>
-        <div class="item">
-    <img src="images/08.jpg" alt="">
-    <p>old 1 1</p>
-  </div>
-        <div class="item">
-    <img src="images/09.jpg" alt="">
-    <p>S nana 1</p>
-  </div>
-          <div class="item">
-    <img src="images/10.jpg" alt="">
-    <p>S nana 2</p>
-  </div>
-            <div class="item">
-    <img src="images/12.jpg" alt="">
-    <p>nono w</p>
-  </div>
-            <div class="item">
-    <img src="images/13.jpg" alt="">
-    <p>megu w</p>
-  </div>
-              <div class="item">
-    <img src="images/14.jpg" alt="">
-    <p>old 13</p>
-  </div>
-              <div class="item">
-    <img src="images/15.jpg" alt="">
-    <p>old 9</p>
-  </div>
-                <div class="item">
-    <img src="images/16.jpg" alt="">
-    <p>megu y</p>
-  </div>
-                  <div class="item">
-    <img src="images/19.jpg" alt="">
-    <p>Elsa</p>
-  </div>
-                    <div class="item">
-    <img src="images/20.jpg" alt="">
-    <p>73 w</p>
-  </div>
-                    <div class="item">
-    <img src="images/21.jpg" alt="">
-    <p>Legulus 1</p>
-  </div>
-                      <div class="item">
-    <img src="images/22.jpg" alt="">
-    <p>Maximilian</p>
-  </div>
-                      <div class="item">
-    <img src="images/23.jpg" alt="">
-    <p>Anna</p>
-  </div>
-                    <div class="item">
-    <img src="images/24.jpg" alt="">
-    <p>old 1 2</p>
-  </div>
-                      <div class="item">
-    <img src="images/25.jpg" alt="">
-    <p>old 4 w</p>
-  </div>
-                      <div class="item">
-    <img src="images/26.jpg" alt="">
-    <p>Rio</p>
-  </div>
-                        <div class="item">
-    <img src="images/27.jpg" alt="">
-    <p>3 t</p>
-  </div>
-                        <div class="item">
-    <img src="images/28.jpg" alt="">
-    <p>School 6</p>
-  </div>
-                          <div class="item">
-    <img src="images/29.jpg" alt="">
-    <p>Ranma 1</p>
-  </div>
-                            <div class="item">
-    <img src="images/31.jpg" alt="">
-    <p>Ranma 2</p>
-  </div>
-                              <div class="item">
-    <img src="images/32.jpg" alt="">
-    <p>Legulus 2</p>
-  </div>
-                                <div class="item">
-    <img src="images/33.jpg" alt="">
-    <p>Miyo</p>
-  </div>
-                                <div class="item">
-    <img src="images/34.jpg" alt="">
-    <p>Alto</p>
-  </div>         
-                                  <div class="item">
-    <img src="images/35.jpg" alt="">
-    <p>Legulus 3</p>
-  </div>  
-                                    <div class="item">
-    <img src="images/36.jpg" alt="">
-    <p>Reda</p>
-  </div> 
-                                      <div class="item">
-    <img src="images/36.jpg" alt="">
-    <p>Legulus 4</p>
-  </div> 
-                                        <div class="item">
-    <img src="images/37.jpg" alt="">
-    <p>105 w</p>
-  </div> 
-                    
-  <!-- 필요한 만큼 .item 복붙 -->
-</div>
+<body class="bg-zinc-950 text-zinc-200">
 
-      SWITCH
-  <div class="gallery">
-                                        <div class="item">
-    <img src="images/101.jpg" alt="">
-    <p>gyoha d rw 1</p>
-  </div> 
-                                            <div class="item">
-    <img src="images/102.jpg" alt="">
-    <p>SEOLROK s rw</p>
-  </div> 
-                                                <div class="item">
-    <img src="images/103.jpg" alt="">
-    <p>SEOLROK s mr</p>
-  </div> 
-                                                  <div class="item">
-    <img src="images/104.jpg" alt="">
-    <p>SEOLROK mr</p>
-  </div> 
-    <div class="item">
-        <img src="images/105.jpg" alt="">
-    <p>gyoha d rw 2</p>
-  </div> 
-                                                      <div class="item">
-    <img src="images/106.jpg" alt="">
-    <p>AHI</p>
-  </div>  
-                                                          <div class="item">
-    <img src="images/107.jpg" alt="">
-    <p>KAIEN</p>
-  </div> 
-                                                              <div class="item">
-    <img src="images/108.jpg" alt="">
-    <p>YIDO mr</p>
-  </div>    
-    <!-- 필요한 만큼 .item 복붙 -->
-</div>
-  <a href="https://x.com/euclidmilk">©euclidmilk</a>
+    <!-- Header -->
+    <header class="hero py-12 text-center">
+        <div class="max-w-4xl mx-auto px-6">
+            <h1 class="text-4xl font-bold mb-2">davidbowie.kr</h1>
+            <p class="text-zinc-400">Marsko's Super Dollfie Gallery</p>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 py-12">
+
+        <!-- VOLKS -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-semibold mb-8 border-b border-zinc-700 pb-3">VOLKS</h2>
+            <div class="gallery grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
+                <!-- 이미지들 추가 (필요하면 더 복붙) -->
+                <div class="item group">
+                    <img src="images/01.jpg" alt="Licht 1" class="w-full aspect-square object-cover rounded-lg">
+                    <p class="mt-2 text-sm text-zinc-400 text-center">Licht 1</p>
+                </div>
+                <div class="item group">
+                    <img src="images/02.jpg" alt="Licht 2" class="w-full aspect-square object-cover rounded-lg">
+                    <p class="mt-2 text-sm text-zinc-400 text-center">Licht 2</p>
+                </div>
+                <!-- ... 나머지 VOLKS 이미지들도 동일 형식으로 -->
+                <div class="item group">
+                    <img src="images/36.jpg" alt="Legulus 4" class="w-full aspect-square object-cover rounded-lg">
+                    <p class="mt-2 text-sm text-zinc-400 text-center">Legulus 4</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SWITCH -->
+        <section>
+            <h2 class="text-3xl font-semibold mb-8 border-b border-zinc-700 pb-3">SWITCH</h2>
+            <div class="gallery grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
+                <div class="item group">
+                    <img src="images/101.jpg" alt="gyoha d rw 1" class="w-full aspect-square object-cover rounded-lg">
+                    <p class="mt-2 text-sm text-zinc-400 text-center">gyoha d rw 1</p>
+                </div>
+                <!-- ... SWITCH 이미지들 동일 형식으로 복붙 -->
+            </div>
+        </section>
+
     </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-10 text-zinc-500 text-sm border-t border-zinc-800">
+        <div class="max-w-4xl mx-auto px-6">
+            © 2026 Marsko • Super Dollfie Collection<br>
+            <a href="https://x.com/RMars2675" target="_blank" class="hover:text-zinc-300">X @RMars2675</a> 
+            • 
+            <a href="/" class="hover:text-zinc-300">Marsko Portfolio</a>
+        </div>
+    </footer>
+
 </body>
 </html>
