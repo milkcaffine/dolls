@@ -68,6 +68,12 @@
       color: var(--dim);
       line-height: 1.35;
     }
+    button.card small.days {
+      display: block;
+      margin-top: 2px;
+      font-size: 0.72rem;
+      color: var(--faint);
+    }
     button.card:hover img { outline: 1px solid #3d3935; outline-offset: 3px; }
     footer { margin-top: 56px; color: var(--faint); font-size: 0.85rem; }
     dialog {
@@ -92,7 +98,7 @@
     <section>
       <h2>Volks</h2>
       <div class="grid" id="volks">
-        <button class="card" data-src="images/sd_l1.jpg"><img src="images/sd_l1.jpg" alt=""><span>우유, Licht 1</span></button>
+        <button class="card" data-src="images/sd_l1.jpg" data-since="2002-05-04"><img src="images/sd_l1.jpg" alt=""><span>우유, Licht 1</span><small class="days"></small></button>
         <button class="card" data-src="images/sd_l2.jpg"><img src="images/sd_l2.jpg" alt=""><span>Licht 2</span></button>
         <button class="card" data-src="images/sd_m1.jpg"><img src="images/sd_m1.jpg" alt=""><span>Michael 1 L</span></button>
         <button class="card" data-src="images/sd_m2.jpg"><img src="images/sd_m2.jpg" alt=""><span>Michael 2 L</span></button>
@@ -154,6 +160,15 @@
     <p></p>
   </dialog>
   <script>
+    document.querySelectorAll("[data-since]").forEach((card) => {
+      const parts = card.dataset.since.split("-").map(Number);
+      const since = new Date(parts[0], parts[1] - 1, parts[2]);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const days = Math.floor((today - since) / 86400000);
+      const el = card.querySelector(".days");
+      if (el && !Number.isNaN(days)) el.textContent = days.toLocaleString("ko-KR") + "일";
+    });
     const view = document.getElementById("view");
     const shot = view.querySelector("img");
     const cap = view.querySelector("p");
