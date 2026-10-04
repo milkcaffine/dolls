@@ -1,105 +1,170 @@
 <!DOCTYPE html>
-<html lang="ko"> 
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>davidbowie.kr | Doll Gallery</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <style>
-        body { font-family: 'Noto Sans KR', system-ui, sans-serif; }
-        .hero { background: linear-gradient(135deg, #1a1a2e, #16213e); }
-        .gallery img {
-            transition: all 0.3s ease;
-        }
-        .gallery img:hover {
-            transform: scale(1.06);
-            filter: brightness(1.15);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>芝 · Dolls</title>
+  <meta name="description" content="芝's Super Dollfie collection.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0c0b;
+      --ink: #eceae6;
+      --dim: #a39e96;
+      --faint: #746f68;
+      --line: #2a2826;
+    }
+    * { box-sizing: border-box; margin: 0; }
+    html, body { background: var(--bg); color: var(--ink); }
+    body {
+      font-family: "IBM Plex Sans", "Noto Sans KR", system-ui, sans-serif;
+      padding: 56px 20px 40px;
+    }
+    main { width: min(100%, 72rem); margin: 0 auto; }
+    header { margin-bottom: 48px; }
+    h1 { font-weight: 500; font-size: 1.6rem; letter-spacing: -0.02em; }
+    .lede { margin-top: 6px; color: var(--dim); }
+    .links { margin-top: 14px; font-size: 0.95rem; }
+    a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+    a:hover { border-bottom-color: var(--ink); }
+    section { margin-top: 28px; }
+    h2 {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin: 28px 0 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 18px 14px;
+    }
+    button.card {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+    button.card img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      display: block;
+      background: #161513;
+    }
+    button.card span {
+      display: block;
+      margin-top: 7px;
+      font-size: 0.78rem;
+      color: var(--dim);
+      line-height: 1.35;
+    }
+    button.card:hover img { outline: 1px solid #3d3935; outline-offset: 3px; }
+    footer { margin-top: 56px; color: var(--faint); font-size: 0.85rem; }
+    dialog {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      max-width: min(92vw, 880px);
+    }
+    dialog::backdrop { background: rgba(0, 0, 0, .82); }
+    dialog img { width: 100%; height: auto; display: block; }
+    dialog p { color: #d8d4ce; font-size: 0.85rem; margin-top: 8px; text-align: center; }
+  </style>
 </head>
-<body class="bg-zinc-950 text-zinc-200">
-
-    <!-- Header -->
-    <header class="hero py-12 text-center">
-        <div class="max-w-5xl mx-auto px-6">
-            <h1 class="text-4xl font-bold mb-2">davidbowie.kr</h1>
-            <p class="text-zinc-400">芝's Super Dollfie Collection</p>
-        </div>
+<body>
+  <main>
+    <header>
+      <h1>芝</h1>
+      <p class="lede">Super Dollfie collection.</p>
+      <p class="links"><a href="https://x.com/euclidmilk">X @euclidmilk</a></p>
     </header>
 
-    <div class="max-w-7xl mx-auto px-6 py-12">
+    <section>
+      <h2>Volks</h2>
+      <div class="grid" id="volks">
+        <button class="card" data-src="images/sd_l1.jpg"><img src="images/sd_l1.jpg" alt=""><span>우유, Licht 1</span></button>
+        <button class="card" data-src="images/sd_l2.jpg"><img src="images/sd_l2.jpg" alt=""><span>Licht 2</span></button>
+        <button class="card" data-src="images/sd_m1.jpg"><img src="images/sd_m1.jpg" alt=""><span>Michael 1 L</span></button>
+        <button class="card" data-src="images/sd_m2.jpg"><img src="images/sd_m2.jpg" alt=""><span>Michael 2 L</span></button>
+        <button class="card" data-src="images/sd_m3.jpg"><img src="images/sd_m3.jpg" alt=""><span>Michael 3 G</span></button>
+        <button class="card" data-src="images/sd_m4.jpg"><img src="images/sd_m4.jpg" alt=""><span>요코, Michael 1off</span></button>
+        <button class="card" data-src="images/sd_09.jpg"><img src="images/sd_09.jpg" alt=""><span>old 9</span></button>
+        <button class="card" data-src="images/sd13_g1.jpg"><img src="images/sd13_g1.jpg" alt=""><span>old sd13 1</span></button>
+        <button class="card" data-src="images/sd13_g2.jpg"><img src="images/sd13_g2.jpg" alt=""><span>old sd13 2</span></button>
+        <button class="card" data-src="images/sd_01_1.jpg"><img src="images/sd_01_1.jpg" alt=""><span>old 1번 1</span></button>
+        <button class="card" data-src="images/sd_01_2.jpg"><img src="images/sd_01_2.jpg" alt=""><span>old 1번 2</span></button>
+        <button class="card" data-src="images/sd_megu_w.jpg"><img src="images/sd_megu_w.jpg" alt=""><span>megu w</span></button>
+        <button class="card" data-src="images/usd_megu.jpg"><img src="images/usd_megu.jpg" alt=""><span>megu y</span></button>
+        <button class="card" data-src="images/sd_nana_s1.jpg"><img src="images/sd_nana_s1.jpg" alt=""><span>nana S</span></button>
+        <button class="card" data-src="images/sd_nana_s2.jpg"><img src="images/sd_nana_s2.jpg" alt=""><span>nana S</span></button>
+        <button class="card" data-src="images/sd_f_3_t.jpg"><img src="images/sd_f_3_t.jpg" alt=""><span>용삼이, fcs 3 t</span></button>
+        <button class="card" data-src="images/dsd_una.jpg"><img src="images/dsd_una.jpg" alt=""><span>una</span></button>
+        <button class="card" data-src="images/sd_nono_w.jpg"><img src="images/sd_nono_w.jpg" alt=""><span>nono w</span></button>
+        <button class="card" data-src="images/sd_rio.jpg"><img src="images/sd_rio.jpg" alt=""><span>Rio</span></button>
+        <button class="card" data-src="images/sd_13.jpg"><img src="images/sd_13.jpg" alt=""><span>old 13</span></button>
+        <button class="card" data-src="images/sdgr_f_73_w.jpg"><img src="images/sdgr_f_73_w.jpg" alt=""><span>fcs 73 w</span></button>
+        <button class="card" data-src="images/sd_school_6.jpg"><img src="images/sd_school_6.jpg" alt=""><span>School 6</span></button>
+        <button class="card" data-src="images/sdgr_f_105.jpg"><img src="images/sdgr_f_105.jpg" alt=""><span>fcs 105 w</span></button>
+        <button class="card" data-src="images/sd13_w.jpg"><img src="images/sd13_w.jpg" alt=""><span>Williams 06</span></button>
+        <button class="card" data-src="images/sd17_w_09cr.jpg"><img src="images/sd17_w_09cr.jpg" alt=""><span>Williams 09 CR</span></button>
+        <button class="card" data-src="images/sd17_w_10_1.jpg"><img src="images/sd17_w_10_1.jpg" alt=""><span>Williams 10</span></button>
+        <button class="card" data-src="images/sd17_w_10_2.jpg"><img src="images/sd17_w_10_2.jpg" alt=""><span>Williams 10</span></button>
+        <button class="card" data-src="images/sd17_17cr.jpg"><img src="images/sd17_17cr.jpg" alt=""><span>Williams 17 CR S w</span></button>
+        <button class="card" data-src="images/sdgr_w.jpg"><img src="images/sdgr_w.jpg" alt=""><span>Williams GR w</span></button>
+        <button class="card" data-src="images/sd17_m1.jpg"><img src="images/sd17_m1.jpg" alt=""><span>타카, Maximilian</span></button>
+        <button class="card" data-src="images/sd17_m2.jpg"><img src="images/sd17_m2.jpg" alt=""><span>Maximilian</span></button>
+        <button class="card" data-src="images/sd17_m3.jpg"><img src="images/sd17_m3.jpg" alt=""><span>Maximilian</span></button>
+        <button class="card" data-src="images/sd17_l1.jpg"><img src="images/sd17_l1.jpg" alt=""><span>Legulus 1st</span></button>
+        <button class="card" data-src="images/sd17_l2.jpg"><img src="images/sd17_l2.jpg" alt=""><span>Legulus 2nd</span></button>
+        <button class="card" data-src="images/sd17_l3.jpg"><img src="images/sd17_l3.jpg" alt=""><span>Legulus 2nd</span></button>
+        <button class="card" data-src="images/sd17_l4.jpg"><img src="images/sd17_l4.jpg" alt=""><span>Legulus 1st</span></button>
+        <button class="card" data-src="images/sd17_l5.jpg"><img src="images/sd17_l5.jpg" alt=""><span>Legulus 1st custom</span></button>
+        <button class="card" data-src="images/sd17_l6.jpg"><img src="images/sd17_l6.jpg" alt=""><span>Legulus 2nd</span></button>
+        <button class="card" data-src="images/sd_alto.jpg"><img src="images/sd_alto.jpg" alt=""><span>Alto</span></button>
+        <button class="card" data-src="images/sd17_r1.jpg"><img src="images/sd17_r1.jpg" alt=""><span>Reda</span></button>
+        <button class="card" data-src="images/sd17_r2.jpg"><img src="images/sd17_r2.jpg" alt=""><span>Reda</span></button>
+        <button class="card" data-src="images/sd17_r3.jpg"><img src="images/sd17_r3.jpg" alt=""><span>Reda</span></button>
+        <button class="card" data-src="images/dsd_miyo.jpg"><img src="images/dsd_miyo.jpg" alt=""><span>Miyo</span></button>
+        <button class="card" data-src="images/dsd_akane.jpg"><img src="images/dsd_akane.jpg" alt=""><span>Akane</span></button>
+      </div>
+    </section>
 
-        <!-- VOLKS -->
-        <section class="mb-20">
-            <h2 class="text-3xl font-semibold mb-8 border-b border-zinc-700 pb-3">VOLKS</h2>
-            <div class="gallery grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">
-                <div class="item"><img src="images/sd_l1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">우유, Licht 1</p></div>
-                <div class="item"><img src="images/sd_l2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Licht 2</p></div>
-                <div class="item"><img src="images/sd_m1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Michael 1 L</p></div>
-                <div class="item"><img src="images/sd_m2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Michael 2 L</p></div>
-                <div class="item"><img src="images/sd_m3.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Michael 3 G</p></div>
-                <div class="item"><img src="images/sd_m4.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">요코, Michael 1off</p></div>
-                <div class="item"><img src="images/sd_09.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">old 9</p></div>
-                <div class="item"><img src="images/sd13_g1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">old sd13 1</p></div>
-                <div class="item"><img src="images/sd13_g2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">old sd13 2</p></div>
-                <div class="item"><img src="images/sd_01_1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">old 1번 1</p></div>
-                <div class="item"><img src="images/sd_01_2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">old 1번 2</p></div>
-                <div class="item"><img src="images/sd_megu_w.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">megu w</p></div>
-                <div class="item"><img src="images/usd_megu.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">megu y</p></div>
-                <div class="item"><img src="images/sd_nana_s1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">nana S</p></div>
-                <div class="item"><img src="images/sd_nana_s2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">nana S</p></div>
-                <div class="item"><img src="images/sd_f_3_t.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">용삼이,fcs 3 t</p></div>
-                <div class="item"><img src="images/dsd_una.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">una</p></div>
-                <div class="item"><img src="images/sd_nono_w.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">nono w</p></div>
-                <div class="item"><img src="images/sd_rio.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Rio</p></div>
-                <div class="item"><img src="images/sd_13.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">old 13</p></div>
-                <div class="item"><img src="images/sdgr_f_73_w.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">fcs 73 w</p></div>
-                <div class="item"><img src="images/sd_school_6.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">School 6</p></div>
-                <div class="item"><img src="images/sdgr_f_105.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">fcs 105 w</p></div>
-                <div class="item"><img src="images/sd13_w.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Williams 06</p></div>
-                <div class="item"><img src="images/sd17_w_09cr.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Williams 09 CR</p></div>
-                <div class="item"><img src="images/sd17_w_10_1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Williams 10</p></div>
-                <div class="item"><img src="images/sd17_w_10_2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Williams 10</p></div>
-                <div class="item"><img src="images/sd17_17cr.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Williams 17 CR S w</p></div>
-                <div class="item"><img src="images/sdgr_w.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Williams GR w</p></div>
-                <div class="item"><img src="images/sd17_m1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">타카, Maximilian</p></div>
-                <div class="item"><img src="images/sd17_m2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Maximilian</p></div>
-                <div class="item"><img src="images/sd17_m3.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Maximilian</p></div>
-                <div class="item"><img src="images/sd17_l1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Legulus 1st</p></div>
-                <div class="item"><img src="images/sd17_l2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Legulus 2nd</p></div>
-                <div class="item"><img src="images/sd17_l3.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Legulus 2nd</p></div>                
-                <div class="item"><img src="images/sd17_l4.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Legulus 1st</p></div>
-                <div class="item"><img src="images/sd17_l5.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Legulus 1st custom</p></div>
-                <div class="item"><img src="images/sd17_l6.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Legulus 2nd</p></div>
-                <div class="item"><img src="images/sd_alto.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Alto</p></div>
-                <div class="item"><img src="images/sd17_r1.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Reda</p></div>
-                <div class="item"><img src="images/sd17_r2.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Reda</p></div>
-                <div class="item"><img src="images/sd17_r3.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Reda</p></div>
-                <div class="item"><img src="images/dsd_miyo.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Miyo</p></div>
-                <div class="item"><img src="images/dsd_akane.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">Akane</p></div>
+    <section>
+      <h2>Switch</h2>
+      <div class="grid">
+        <button class="card" data-src="images/103.jpg"><img src="images/103.jpg" alt=""><span>SEOLROK somnia MR</span></button>
+      </div>
+    </section>
 
-            </div>
-        </section>
+    <footer>芝</footer>
+  </main>
 
-        <!-- SWITCH -->
-        <section>
-            <h2 class="text-3xl font-semibold mb-8 border-b border-zinc-700 pb-3">SWITCH</h2>
-            <div class="gallery grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-6">              
-
-                <div class="item"><img src="images/103.jpg" alt="" class="w-full aspect-square object-cover rounded-lg"><p class="mt-2 text-sm text-zinc-400 text-center">SEOLROK somnia MR</p></div>
-            </div>
-        </section>
-
-    </div>
-
-    <!-- Footer -->
-    <footer class="text-center py-10 text-zinc-500 text-sm border-t border-zinc-800">
-        <div class="max-w-5xl mx-auto px-6">
-            © 2026 芝 • Super Dollfie Collection<br>
-            <a href="https://x.com/euclidmilk" target="_blank" class="hover:text-zinc-300">X @euclidmilk</a>
-        </div>
-    </footer>
-
+  <dialog id="view">
+    <img alt="">
+    <p></p>
+  </dialog>
+  <script>
+    const view = document.getElementById("view");
+    const shot = view.querySelector("img");
+    const cap = view.querySelector("p");
+    document.querySelectorAll("button.card").forEach((card) => {
+      card.addEventListener("click", () => {
+        shot.src = card.dataset.src;
+        cap.textContent = card.querySelector("span").textContent;
+        view.showModal();
+      });
+    });
+    view.addEventListener("click", () => view.close());
+  </script>
 </body>
 </html>
