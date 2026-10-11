@@ -47,7 +47,7 @@
       flex-direction: column;
       gap: 8px;
       margin-top: 14px;
-      max-height: 220px;
+      max-height: 200px;
       overflow-y: auto;
       padding-right: 2px;
     }
@@ -108,7 +108,7 @@
       font-size: 0.88rem;
     }
     .control-row label { font-weight: 600; color: #343a40; }
-    .control-row select, .control-row input[type="range"] {
+    .control-row select, .control-row input[type="range"], .control-row input[type="text"] {
       font-size: 0.9rem;
       border-radius: 8px;
     }
@@ -117,6 +117,14 @@
       border: 1px solid #ced4da;
       background: #fff;
     }
+    .watermark-input {
+      width: 170px;
+      padding: 7px 10px;
+      border: 1px solid #ced4da;
+      background: #fff;
+      font-size: 0.85rem;
+    }
+    .watermark-input:focus { border-color: #007aff; outline: none; }
     .shape-control {
       display: flex;
       background: #e9ecef;
@@ -196,7 +204,7 @@
 <div class="container">
   <div class="back"><a href="index.html">← dolls</a></div>
   <h1>포토 콜라주 메이커</h1>
-  <p class="sub">동그라미 컷 & 타이틀 캡션 지원 에디터</p>
+  <p class="sub">동그라미 컷 · 타이틀 · 우측 하단 서명 지원</p>
   <div class="dropzone" id="dropzone">
     <span>📷 사진 선택 (여러 장 추가 가능)</span>
     <small>터치하여 앨범에서 사진을 불러오세요</small>
@@ -229,6 +237,13 @@
         <option value="9:16">9:16 (스토리/배경화면)</option>
         <option value="16:9">16:9 (와이드 가로)</option>
       </select>
+    </div>
+    <div class="control-row">
+      <label for="watermarkInput">
+        서명 / 닉네임 (선택)
+        <span style="display:block; font-size:0.75rem; font-weight:400; color:#868e96;">우측 하단 워터마크</span>
+      </label>
+      <input type="text" id="watermarkInput" class="watermark-input" placeholder="@username">
     </div>
     <div class="control-row" id="radiusRow">
       <label>모서리 둥글기</label>
@@ -264,6 +279,7 @@
   const shapeControl = document.getElementById('shapeControl');
   const layoutSelect = document.getElementById('layoutSelect');
   const ratioSelect = document.getElementById('ratioSelect');
+  const watermarkInput = document.getElementById('watermarkInput');
   const spacingRange = document.getElementById('spacingRange');
   const radiusRange = document.getElementById('radiusRange');
   const radiusRow = document.getElementById('radiusRow');
@@ -313,7 +329,7 @@
       const input = document.createElement('input');
       input.className = 'caption-input';
       input.type = 'text';
-      input.placeholder = `사진 ${idx + 1} 캡션/타이틀 (선택)`;
+      input.placeholder = `사진 ${idx + 1} 캡션 (선택)`;
       input.value = item.caption;
       input.addEventListener('input', (e) => {
         item.caption = e.target.value;
@@ -336,6 +352,7 @@
   [layoutSelect, ratioSelect, spacingRange, radiusRange].forEach(el => {
     el.addEventListener('input', renderCollage);
   });
+  watermarkInput.addEventListener('input', renderCollage);
   colorBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       colorBtns.forEach(b => b.classList.remove('active'));
@@ -401,6 +418,27 @@
       renderedText += '...';
     }
     ctx.fillText(renderedText, x + w / 2, y + h / 2);
+    ctx.restore();
+  }
+  function drawSignature(ctx, text, canvasW, canvasH, pad) {
+    if (!text || !text.trim()) return;
+    ctx.save();
+    ctx.font = '500 26px -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    if (bgColor === '#121212') {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    } else {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+      ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+    }
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    const posX = canvasW - Math.max(pad, 30);
+    const posY = canvasH - Math.max(pad / 2, 22);
+    ctx.fillText(text.trim(), posX, posY);
     ctx.restore();
   }
   function renderCollage() {
@@ -504,6 +542,7 @@
         }
       });
     }
+    drawSignature(ctx, watermarkInput.value, baseW, baseH, pad);
     previewArea.style.display = 'block';
     downloadBtn.disabled = false;
   }
