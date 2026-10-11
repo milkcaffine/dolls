@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>미니 오에카키 캔버스</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      background: #eef1f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+      touch-action: none;
+    }
+    .wrapper {
+      max-width: 520px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toolbar {
+      background: #ffffff;
+      padding: 10px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+    .tool-group { display: flex; gap: 6px; align-items: center; }
+    .btn {
+      padding: 8px 12px;
+      border: 1px solid #dee2e6;
+      background: #fff;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn.active {
+      background: #007aff;
+      color: #fff;
+      border-color: #007aff;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-save { background: #198754; color: #fff; border-color: #198754; }
+    .controls-bar {
+      background: #ffffff;
+      padding: 10px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+    .colors { display: flex; gap: 6px; align-items: center; }
+    .color-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #dee2e6;
+      cursor: pointer;
+    }
+    .color-dot.active { border-color: #007aff; transform: scale(1.15); }
+    input[type="color"] {
+      width: 26px;
+      height: 26px;
+      border: none;
+      border-radius: 50%;
+      background: none;
+      cursor: pointer;
+    }
+    .brush-size {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #495057;
+    }
+    input[type="range"] { width: 90px; }
+    .canvas-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: center;
+    }
+    #oekakiCanvas {
+      background: #ffffff;
+      border: 1px solid #edf0f2;
+      border-radius: 10px;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .back { text-align: center; margin-bottom: 8px; font-size: 0.85rem; }
+    .back a { color: #007aff; text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="back"><a href="index.html">← dolls</a></div>
+  <div class="toolbar">
+    <div class="tool-group">
+      <button class="btn active" id="penBtn">✏️ 펜</button>
+      <button class="btn" id="eraserBtn">🧹 지우개</button>
+    </div>
+    <div class="tool-group">
+      <button class="btn" id="undoBtn">↩ 되돌리기</button>
+      <button class="btn" id="clearBtn">전체삭제</button>
+      <button class="btn btn-save" id="saveBtn">저장</button>
+    </div>
+  </div>
+  <div class="controls-bar">
+    <div class="colors">
+      <div class="color-dot active" data-color="#1a1a1a" style="background: #1a1a1a;"></div>
+      <div class="color-dot" data-color="#ff3b30" style="background: #ff3b30;"></div>
+      <div class="color-dot" data-color="#007aff" style="background: #007aff;"></div>
+      <div class="color-dot" data-color="#34c759" style="background: #34c759;"></div>
+      <div class="color-dot" data-color="#ff9500" style="background: #ff9500;"></div>
+      <input type="color" id="customColor" value="#1a1a1a" title="직접 색상 선택">
+    </div>
+    <div class="brush-size">
+      <span id="sizeLabel">굵기 3</span>
+      <input type="range" id="sizeRange" min="1" max="40" value="3">
+    </div>
+  </div>
+  <div class="canvas-card">
+    <canvas id="oekakiCanvas"></canvas>
+  </div>
+</div>
+<script>
+  const canvas = document.getElementById('oekakiCanvas');
+  const ctx = canvas.getContext('2d');
+  const penBtn = document.getElementById('penBtn');
+  const eraserBtn = document.getElementById('eraserBtn');
+  const undoBtn = document.getElementById('undoBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const sizeRange = document.getElementById('sizeRange');
+  const sizeLabel = document.getElementById('sizeLabel');
+  const colorDots = document.querySelectorAll('.color-dot');
+  const customColor = document.getElementById('customColor');
+  const CANVAS_SIZE = 800;
+  canvas.width = CANVAS_SIZE;
+  canvas.height = CANVAS_SIZE;
+  function resizeDisplayCanvas() {
+    const parentWidth = canvas.parentElement.clientWidth - 16;
+    const size = Math.min(parentWidth, 500);
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+  }
+  window.addEventListener('resize', resizeDisplayCanvas);
+  resizeDisplayCanvas();
+  function clearToWhite() {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  }
+  clearToWhite();
+  let isDrawing = false;
+  let isEraser = false;
+  let currentColor = '#1a1a1a';
+  let brushSize = 3;
+  let lastX = 0;
+  let lastY = 0;
+  const history = [];
+  const MAX_HISTORY = 15;
+  function pushHistory() {
+    if (history.length >= MAX_HISTORY) history.shift();
+    history.push(canvas.toDataURL());
+  }
+  pushHistory();
+  function getCoordinates(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  }
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const { x, y } = getCoordinates(e);
+    lastX = x;
+    lastY = y;
+    ctx.beginPath();
+    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+    ctx.fillStyle = isEraser ? '#ffffff' : currentColor;
+    ctx.fill();
+  }
+  function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const { x, y } = getCoordinates(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = isEraser ? '#ffffff' : currentColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    lastX = x;
+    lastY = y;
+  }
+  function endDraw() {
+    if (isDrawing) {
+      isDrawing = false;
+      pushHistory();
+    }
+  }
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  window.addEventListener('touchend', endDraw);
+  penBtn.addEventListener('click', () => {
+    isEraser = false;
+    penBtn.classList.add('active');
+    eraserBtn.classList.remove('active');
+  });
+  eraserBtn.addEventListener('click', () => {
+    isEraser = true;
+    eraserBtn.classList.add('active');
+    penBtn.classList.remove('active');
+  });
+  colorDots.forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      colorDots.forEach(d => d.classList.remove('active'));
+      e.target.classList.add('active');
+      currentColor = e.target.dataset.color;
+      customColor.value = currentColor;
+      if (isEraser) penBtn.click();
+    });
+  });
+  customColor.addEventListener('input', (e) => {
+    currentColor = e.target.value;
+    colorDots.forEach(d => d.classList.remove('active'));
+    if (isEraser) penBtn.click();
+  });
+  sizeRange.addEventListener('input', (e) => {
+    brushSize = parseInt(e.target.value, 10);
+    sizeLabel.textContent = `굵기 ${brushSize}`;
+  });
+  undoBtn.addEventListener('click', () => {
+    if (history.length > 1) {
+      history.pop();
+      const prev = new Image();
+      prev.src = history[history.length - 1];
+      prev.onload = () => {
+        ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        ctx.drawImage(prev, 0, 0);
+      };
+    }
+  });
+  clearBtn.addEventListener('click', () => {
+    if (confirm('캔버스를 모두 지우시겠습니까?')) {
+      clearToWhite();
+      pushHistory();
+    }
+  });
+  saveBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `oekaki_${Date.now()}.png`;
+    link.click();
+  });
+</script>
+</body>
+</html>
