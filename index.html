@@ -80,10 +80,21 @@
       border: 0;
       padding: 0;
       background: transparent;
-      max-width: min(92vw, 880px);
+      max-width: 92vw;
+      max-height: 92vh;
+      width: fit-content;
+      margin: auto;
     }
     dialog::backdrop { background: rgba(0, 0, 0, .82); }
-    dialog img { width: 100%; height: auto; display: block; }
+    dialog img {
+      display: block;
+      max-width: min(92vw, 880px);
+      max-height: calc(92vh - 2.5rem);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      margin: 0 auto;
+    }
     dialog p { color: #d8d4ce; font-size: 0.85rem; margin-top: 8px; text-align: center; }
   </style>
 </head>
@@ -94,62 +105,7 @@
       <p class="lede">Super Dollfie collection.</p>
       <p class="links"><a href="https://x.com/euclidmilk">X @euclidmilk</a> · tools: <a href="x-split.html">x-split</a> · <a href="collage.html">collage</a> · <a href="oekaki.html">oekaki</a></p>
     </header>
-
-    <section>
-      <h2>Volks</h2>
-      <div class="grid" id="volks">
-        <button class="card" data-src="images/sd_l1.jpg" data-since="2002-05-04"><img src="images/sd_l1.jpg" alt=""><span>우유, Licht 1</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_l2.jpg" data-since="2017-07-25"><img src="images/sd_l2.jpg" alt=""><span>Licht 2</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_m1.jpg" data-since="2008-11-19"><img src="images/sd_m1.jpg" alt=""><span>Michael 1 L</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_m2.jpg" data-since="2010-09-26"><img src="images/sd_m2.jpg" alt=""><span>Michael 2 L</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_m3.jpg" data-since="2011-09-11"><img src="images/sd_m3.jpg" alt=""><span>Michael 3 G</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_m4.jpg" data-since="2026-06-14"><img src="images/sd_m4.jpg" alt=""><span>요코, Michael 1off</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_09.jpg" data-since="2021-11-07"><img src="images/sd_09.jpg" alt=""><span>old 9</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_01_1.jpg" data-since="2017-02-25"><img src="images/sd_01_1.jpg" alt=""><span>old 1번 1</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_01_2.jpg" data-since="2023-02-18"><img src="images/sd_01_2.jpg" alt=""><span>old 1번 2</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_megu_w.jpg" data-since="2021-10-17"><img src="images/sd_megu_w.jpg" alt=""><span>megu w</span><small class="days"></small></button>
-        <button class="card" data-src="images/usd_megu.jpg" data-since="2021-11-13"><img src="images/usd_megu.jpg" alt=""><span>megu y</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_nana_s1.jpg" data-since="2017-04-01"><img src="images/sd_nana_s1.jpg" alt=""><span>nana S</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_nana_s2.jpg" data-since="2017-05-01"><img src="images/sd_nana_s2.jpg" alt=""><span>nana S</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_f_3_t.jpg" data-since="2024-04-13"><img src="images/sd_f_3_t.jpg" alt=""><span>용삼이, fcs 3 t</span><small class="days"></small></button>
-        <button class="card" data-src="images/dsd_una.jpg" data-since="2026-07-24"><img src="images/dsd_una.jpg" alt=""><span>una</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_nono_w.jpg" data-since="2021-10-17"><img src="images/sd_nono_w.jpg" alt=""><span>nono w</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_rio.jpg" data-since="2024-03-09"><img src="images/sd_rio.jpg" alt=""><span>Rio</span><small class="days"></small></button>
-        <button class="card" data-src="images/sdgr_f_73_w.jpg" data-since="2022-04-22"><img src="images/sdgr_f_73_w.jpg" alt=""><span>fcs 73 w</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_school_6.jpg" data-since="2024-05-06"><img src="images/sd_school_6.jpg" alt=""><span>School 6</span><small class="days"></small></button>
-        <button class="card" data-src="images/sdgr_f_105.jpg" data-since="2026-06-07"><img src="images/sdgr_f_105.jpg" alt=""><span>fcs 105 w</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd13_w.jpg" data-since="2026-08-19"><img src="images/sd13_w.jpg" alt=""><span>Williams 06</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_w_09cr.jpg" data-since="2026-06-24"><img src="images/sd17_w_09cr.jpg" alt=""><span>Williams 09 CR</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_w_10_1.jpg" data-since="2026-06-14"><img src="images/sd17_w_10_1.jpg" alt=""><span>Williams 10</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_w_10_2.jpg" data-since="2026-07-07"><img src="images/sd17_w_10_2.jpg" alt=""><span>Williams 10</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_17cr.jpg"><img src="images/sd17_17cr.jpg" alt=""><span>Williams 17 CR S w</span><small class="days"></small></button>
-        <button class="card" data-src="images/sdgr_w.jpg" data-since="2026-07-25"><img src="images/sdgr_w.jpg" alt=""><span>Williams GR w</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_m1.jpg" data-since="2022-05-29"><img src="images/sd17_m1.jpg" alt=""><span>타카, Maximilian</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_m2.jpg" data-since="2026-07-15"><img src="images/sd17_m2.jpg" alt=""><span>Maximilian</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_m3.jpg" data-since="2026-07-28"><img src="images/sd17_m3.jpg" alt=""><span>Maximilian</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_l1.jpg" data-since="2022-05-29"><img src="images/sd17_l1.jpg" alt=""><span>Legulus 1st</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_l2.jpg" data-since="2026-04-26"><img src="images/sd17_l2.jpg" alt=""><span>Legulus 2nd</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_l3.jpg" data-since="2026-05-18"><img src="images/sd17_l3.jpg" alt=""><span>Legulus 2nd</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_l4.jpg" data-since="2026-06-06"><img src="images/sd17_l4.jpg" alt=""><span>Legulus 1st</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_l5.jpg" data-since="2026-06-17"><img src="images/sd17_l5.jpg" alt=""><span>Legulus 1st custom</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_l6.jpg" data-since="2026-07-01"><img src="images/sd17_l6.jpg" alt=""><span>Legulus 2nd</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd_alto.jpg" data-since="2026-05-07"><img src="images/sd_alto.jpg" alt=""><span>Alto</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_r1.jpg" data-since="2026-05-19"><img src="images/sd17_r1.jpg" alt=""><span>Reda</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_r2.jpg" data-since="2026-07-05"><img src="images/sd17_r2.jpg" alt=""><span>Reda</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_r3.jpg" data-since="2026-07-16"><img src="images/sd17_r3.jpg" alt=""><span>Reda</span><small class="days"></small></button>
-        <button class="card" data-src="images/sd17_r4.jpg" data-since="2026-09-08"><img src="images/sd17_r4.jpg" alt=""><span>Reda</span><small class="days"></small></button>
-        <button class="card" data-src="images/dsd_miyo.jpg" data-since="2026-04-26"><img src="images/dsd_miyo.jpg" alt=""><span>Miyo</span><small class="days"></small></button>
-        <button class="card" data-src="images/dsd_akane.jpg" data-since="2026-09-19"><img src="images/dsd_akane.jpg" alt=""><span>Akane</span><small class="days"></small></button>
-      </div>
-    </section>
-
-    <section>
-      <h2>Switch</h2>
-      <div class="grid">
-        <button class="card" data-src="images/103.jpg" data-since="2022-06-20"><img src="images/103.jpg" alt=""><span>SEOLROK s MR</span><small class="days"></small></button>
-      </div>
-    </section>
-
+    <div id="sections"></div>
     <footer>芝</footer>
   </main>
 
@@ -157,23 +113,64 @@
     <img alt="">
     <p></p>
   </dialog>
+  <script src="data.js"></script>
   <script>
-    document.querySelectorAll("[data-since]").forEach((card) => {
-      const parts = card.dataset.since.split("-").map(Number);
+    const IMG = "images/";
+    const THUMB = "images/thumbs/";
+
+    function daysSince(iso) {
+      const parts = iso.split("-").map(Number);
       const since = new Date(parts[0], parts[1] - 1, parts[2]);
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const days = Math.floor((today - since) / 86400000);
-      const el = card.querySelector(".days");
-      if (el && !Number.isNaN(days)) el.textContent = days.toLocaleString("ko-KR") + "일";
-    });
+      return Number.isNaN(days) ? "" : days.toLocaleString("ko-KR") + "일";
+    }
+
+    function card(item) {
+      const btn = document.createElement("button");
+      btn.className = "card";
+      btn.dataset.src = IMG + item.src;
+      if (item.since) btn.dataset.since = item.since;
+
+      const img = document.createElement("img");
+      img.src = THUMB + item.src;
+      img.alt = item.name;
+      img.loading = "lazy";
+      img.decoding = "async";
+
+      const name = document.createElement("span");
+      name.textContent = item.name;
+
+      const days = document.createElement("small");
+      days.className = "days";
+      if (item.since) days.textContent = daysSince(item.since);
+
+      btn.append(img, name, days);
+      return btn;
+    }
+
+    const root = document.getElementById("sections");
+    for (const section of window.DOLL_SECTIONS) {
+      const el = document.createElement("section");
+      const h2 = document.createElement("h2");
+      h2.textContent = section.title;
+      const grid = document.createElement("div");
+      grid.className = "grid";
+      grid.id = section.id;
+      for (const item of section.items) grid.appendChild(card(item));
+      el.append(h2, grid);
+      root.appendChild(el);
+    }
+
     const view = document.getElementById("view");
     const shot = view.querySelector("img");
     const cap = view.querySelector("p");
-    document.querySelectorAll("button.card").forEach((card) => {
-      card.addEventListener("click", () => {
-        shot.src = card.dataset.src;
-        cap.textContent = card.querySelector("span").textContent;
+    document.querySelectorAll("button.card").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        shot.src = btn.dataset.src;
+        shot.alt = btn.querySelector("span").textContent;
+        cap.textContent = btn.querySelector("span").textContent;
         view.showModal();
       });
     });
