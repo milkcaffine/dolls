@@ -27,7 +27,7 @@ window.DOLL_SECTIONS = [
       { src: "sd17_w_09cr.jpg", name: "Williams 09 CR", since: "2026-06-24" },
       { src: "sd17_w_10_1.jpg", name: "Williams 10", since: "2026-06-14" },
       { src: "sd17_w_10_2.jpg", name: "Williams 10", since: "2026-07-07" },
-      { src: "sd17_17cr.jpg", name: "Williams 17 CR S w" },
+      { src: "sd17_17cr.jpg", name: "Williams 17 CR S w", since: "2026-08-11" },
       { src: "sdgr_w.jpg", name: "Williams GR w", since: "2026-07-25" },
       { src: "sd17_m1.jpg", name: "타카, Maximilian", since: "2022-05-29" },
       { src: "sd17_m2.jpg", name: "Maximilian", since: "2026-07-15" },
