@@ -13,7 +13,7 @@ window.DOLL_SECTIONS = [
       { src: "sd_01_1.jpg", name: "old 1번 1", since: "2017-02-25" },
       { src: "sd_01_2.jpg", name: "old 1번 2", since: "2023-02-18" },
       { src: "sd_megu_w.jpg", name: "megu w", since: "2021-10-17" },
-      { src: "usd_megu.jpg", name: "megu y", since: "2021-11-13" },
+      { src: "usd_megu.jpg", name: "megu y", since: "2021-11-13", head: "YoSD", body: "YoSD" },
       { src: "sd_nana_s1.jpg", name: "nana S", since: "2017-04-01" },
       { src: "sd_nana_s2.jpg", name: "nana S", since: "2017-05-01" },
       { src: "sd_f_3_t.jpg", name: "용삼이, fcs 3 t", since: "2024-04-13" },

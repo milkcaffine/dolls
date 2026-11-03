@@ -484,7 +484,7 @@
       if (lower.startsWith("sdgr_")) return "SDGr";
       if (lower.startsWith("sd13_")) return "SD13";
       if (lower.startsWith("dsd_"))  return "DSD";
-      if (lower.startsWith("usd_"))  return "USD";
+      if (lower.startsWith("usd_") || lower.startsWith("yosd_")) return "YoSD";
       if (lower.startsWith("sd_"))   return "SD";
       return "";
     }
@@ -537,7 +537,7 @@
     });
 
     // 태그 정의 (규격 태그 + 인형 이름에서 많은 친구들)
-    const SIZE_TAGS = ["SD17", "SDGr", "DSD", "SD", "SD13"];
+    const SIZE_TAGS = ["SD17", "SDGr", "DSD", "SD", "SD13", "YoSD"];
     const HEAD_TAGS = ["Williams", "Legulus", "Michael", "Reda"];
 
     // 상태 관리
