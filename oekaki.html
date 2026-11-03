@@ -696,6 +696,19 @@
   // ================= 👫 실시간 같이 그리기 (PeerJS / WebRTC) =================
   let peer = null, conn = null;
   const PREFIX = 'dolls-oekaki-';
+  // STUN만으로는 모바일 데이터/엄격한 NAT에서 연결이 안 돼서 TURN 릴레이도 추가
+  const PEER_OPTS = {
+    config: {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:global.stun.twilio.com:3478' },
+        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+        { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+      ]
+    }
+  };
+  let joinTimer = null;
   const netStatus = document.getElementById('netStatus');
   const hostBtn = document.getElementById('hostBtn');
   const joinBtn = document.getElementById('joinBtn');
@@ -717,9 +730,17 @@
   function setupConn(c, isHost) {
     conn = c;
     c.on('open', () => {
+      clearTimeout(joinTimer);
       setNet('🟢 친구와 연결됨!', true);
-      if (isHost) c.send({ t: 'img', d: canvas.toDataURL('image/png') });
+      if (isHost) {
+        // 큰 PNG 대신 가벼운 JPEG로 현재 그림 전송
+        const t = document.createElement('canvas');
+        t.width = t.height = 600;
+        t.getContext('2d').drawImage(canvas, 0, 0, 600, 600);
+        c.send({ t: 'img', d: t.toDataURL('image/jpeg', 0.85) });
+      }
     });
+    c.on('error', err => { alert('연결 오류: ' + err.type); leave(); });
     c.on('data', onNetData);
     c.on('close', () => { conn = null; setNet(peer ? '친구가 나갔어요' : '혼자 그리는 중', false); });
   }
@@ -746,7 +767,7 @@
   hostBtn.onclick = () => {
     if (!ensurePeerLib()) return;
     const code = Math.random().toString(36).slice(2, 6).toUpperCase();
-    peer = new Peer(PREFIX + code);
+    peer = new Peer(PREFIX + code, PEER_OPTS);
     setNet('방 만드는 중...', false);
     peer.on('open', () => {
       setNet(`방 코드: ${code} (친구에게 알려주세요)`, false);
@@ -766,11 +787,19 @@
     const code = (prompt('친구의 방 코드를 입력하세요') || '').trim().toUpperCase();
     if (!code) return;
     if (!confirm('참가하면 내 캔버스가 방장의 그림으로 바뀌어요. 계속할까요?')) return;
-    peer = new Peer();
+    peer = new Peer(PEER_OPTS);
     setNet('연결 중...', false);
+    clearTimeout(joinTimer);
+    joinTimer = setTimeout(() => {
+      if (peer && !(conn && conn.open)) {
+        alert('연결 시간이 초과됐어요 😢\n방 코드를 다시 확인하거나, 방장이 방을 다시 만들어 보세요.');
+        leave();
+      }
+    }, 20000);
     peer.on('open', () => setupConn(peer.connect(PREFIX + code, { reliable: true }), false));
     peer.on('error', err => {
-      alert(err.type === 'peer-unavailable' ? '그 방을 찾을 수 없어요 😢' : '연결 오류: ' + err.type);
+      clearTimeout(joinTimer);
+      alert(err.type === 'peer-unavailable' ? '그 방을 찾을 수 없어요 😢 코드를 확인해주세요.' : '연결 오류: ' + err.type);
       leave();
     });
   };
