@@ -44,7 +44,7 @@ window.DOLL_SECTIONS = [
       { src: "sd17_r3.jpg", name: "Reda", since: "2026-07-16" },
       { src: "sd17_r4.jpg", name: "Reda", since: "2026-09-08" },
       { src: "dsd_miyo.jpg", name: "Miyo", since: "2026-04-26" },
-      { src: "dsd_akane.jpg", name: "Akane", since: "2026-09-19" },
+      { src: "dsd_akane.jpg", name: "Akane", since: "2026-09-19", head: "SDGr", body: "DSD" },
     ],
   },
   {
