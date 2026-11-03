@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>미니 오에카키 캔버스</title>
-  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
@@ -65,8 +64,6 @@
     .timer { font-weight: 800; font-size: 1.1rem; color: #d6336c; min-width: 48px; }
     .timer.low { color: #e03131; animation: pulse .5s infinite alternate; }
     @keyframes pulse { to { transform: scale(1.25); } }
-    .net-status { font-size: 0.8rem; color: #868e96; font-weight: 600; }
-    .net-status.on { color: #198754; }
     .countdown { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; font-size: 9rem; font-weight: 900; color: #fff; background: rgba(0,0,0,.45); z-index: 30; }
     .countdown.show { display: flex; }
     #fx { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
@@ -122,12 +119,6 @@
       <button class="btn" id="relayOut">📤 릴레이 보내기</button>
       <button class="btn" id="relayIn">📥 이어받기</button>
       <input type="file" id="relayFile" accept="image/*" style="display:none">
-    </div>
-    <div class="tool-group" style="width:100%">
-      <button class="btn" id="hostBtn">👫 방 만들기</button>
-      <button class="btn" id="joinBtn">🚪 방 참가</button>
-      <button class="btn" id="leaveBtn" style="display:none">❌ 나가기</button>
-      <span id="netStatus" class="net-status">혼자 그리는 중</span>
     </div>
   </div>
 
@@ -244,7 +235,7 @@
     }
   };
   document.getElementById('clearBtn').onclick = () => {
-    if (confirm('캔버스를 모두 지우시겠습니까?')) { clearToBg(); pushHistory(); netSend({ t: 'clear' }); }
+    if (confirm('캔버스를 모두 지우시겠습니까?')) { clearToBg(); pushHistory(); }
   };
 
   // ---------- 좌표 ----------
@@ -376,7 +367,6 @@
     const { x, y } = getCoordinates(e);
     if (brush === 'fill') {
       floodFill(x, y);
-      netSend({ t: 'fill', x, y, c: currentColor });
       pushHistory();
       return;
     }
@@ -386,7 +376,6 @@
   }
 
   function stepAt(x0, y0, x1, y1, first) {
-    netSend({ t: 'step', b: brush, c: currentColor, s: brushSize, sym: symmetry, e: stampEmoji, x0, y0, x1, y1, first });
     doStep(x0, y0, x1, y1, first);
   }
 
@@ -635,7 +624,6 @@
 
   document.getElementById('taBtn').onclick = async () => {
     if (taInterval) { stopTimeAttack(false); return; }
-    if (conn) { alert('같이 그리는 중에는 타임어택을 할 수 없어요!'); return; }
     if (!confirm('캔버스를 지우고 타임어택을 시작할까요?')) return;
     const sec = parseInt(document.getElementById('taSec').value, 10);
     const topic = topics[Math.floor(Math.random() * topics.length)];
@@ -688,129 +676,10 @@
       ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
       pushHistory();
       URL.revokeObjectURL(url);
-      netSend({ t: 'img', d: canvas.toDataURL('image/png') });
     };
     img.src = url;
   };
 
-  // ================= 👫 실시간 같이 그리기 (PeerJS / WebRTC) =================
-  let peer = null, conn = null;
-  const PREFIX = 'dolls-oekaki-';
-  // STUN만으로는 모바일 데이터/엄격한 NAT에서 연결이 안 돼서 TURN 릴레이도 추가
-  const PEER_OPTS = {
-    config: {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:global.stun.twilio.com:3478' },
-        { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-        { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-        { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
-      ]
-    }
-  };
-  let joinTimer = null;
-  const netStatus = document.getElementById('netStatus');
-  const hostBtn = document.getElementById('hostBtn');
-  const joinBtn = document.getElementById('joinBtn');
-  const leaveBtn = document.getElementById('leaveBtn');
-
-  function setNet(text, on) {
-    netStatus.textContent = text;
-    netStatus.classList.toggle('on', !!on);
-    hostBtn.style.display = joinBtn.style.display = (peer ? 'none' : '');
-    leaveBtn.style.display = peer ? '' : 'none';
-  }
-  function netSend(msg) { if (conn && conn.open) conn.send(msg); }
-
-  function ensurePeerLib() {
-    if (typeof Peer === 'undefined') { alert('PeerJS를 불러오지 못했어요. 인터넷 연결을 확인해주세요.'); return false; }
-    return true;
-  }
-
-  function setupConn(c, isHost) {
-    conn = c;
-    c.on('open', () => {
-      clearTimeout(joinTimer);
-      setNet('🟢 친구와 연결됨!', true);
-      if (isHost) {
-        // 큰 PNG 대신 가벼운 JPEG로 현재 그림 전송
-        const t = document.createElement('canvas');
-        t.width = t.height = 600;
-        t.getContext('2d').drawImage(canvas, 0, 0, 600, 600);
-        c.send({ t: 'img', d: t.toDataURL('image/jpeg', 0.85) });
-      }
-    });
-    c.on('error', err => { alert('연결 오류: ' + err.type); leave(); });
-    c.on('data', onNetData);
-    c.on('close', () => { conn = null; setNet(peer ? '친구가 나갔어요' : '혼자 그리는 중', false); });
-  }
-
-  function onNetData(m) {
-    if (m.t === 'step') {
-      const sv = { brush, currentColor, brushSize, symmetry, stampEmoji };
-      brush = m.b; currentColor = m.c; brushSize = m.s; symmetry = m.sym; stampEmoji = m.e;
-      doStep(m.x0, m.y0, m.x1, m.y1, m.first);
-      ({ brush, currentColor, brushSize, symmetry, stampEmoji } = sv);
-    } else if (m.t === 'fill') {
-      const sv = currentColor; currentColor = m.c;
-      floodFill(m.x, m.y);
-      currentColor = sv;
-    } else if (m.t === 'clear') {
-      clearToBg();
-    } else if (m.t === 'img') {
-      const img = new Image();
-      img.onload = () => { ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE); pushHistory(); };
-      img.src = m.d;
-    }
-  }
-
-  hostBtn.onclick = () => {
-    if (!ensurePeerLib()) return;
-    const code = Math.random().toString(36).slice(2, 6).toUpperCase();
-    peer = new Peer(PREFIX + code, PEER_OPTS);
-    setNet('방 만드는 중...', false);
-    peer.on('open', () => {
-      setNet(`방 코드: ${code} (친구에게 알려주세요)`, false);
-    });
-    peer.on('connection', c => {
-      if (conn) { c.close(); return; }
-      setupConn(c, true);
-    });
-    peer.on('error', err => {
-      if (err.type === 'unavailable-id') { leave(); hostBtn.click(); return; }
-      alert('연결 오류: ' + err.type); leave();
-    });
-  };
-
-  joinBtn.onclick = () => {
-    if (!ensurePeerLib()) return;
-    const code = (prompt('친구의 방 코드를 입력하세요') || '').trim().toUpperCase();
-    if (!code) return;
-    if (!confirm('참가하면 내 캔버스가 방장의 그림으로 바뀌어요. 계속할까요?')) return;
-    peer = new Peer(PEER_OPTS);
-    setNet('연결 중...', false);
-    clearTimeout(joinTimer);
-    joinTimer = setTimeout(() => {
-      if (peer && !(conn && conn.open)) {
-        alert('연결 시간이 초과됐어요 😢\n방 코드를 다시 확인하거나, 방장이 방을 다시 만들어 보세요.');
-        leave();
-      }
-    }, 20000);
-    peer.on('open', () => setupConn(peer.connect(PREFIX + code, { reliable: true }), false));
-    peer.on('error', err => {
-      clearTimeout(joinTimer);
-      alert(err.type === 'peer-unavailable' ? '그 방을 찾을 수 없어요 😢 코드를 확인해주세요.' : '연결 오류: ' + err.type);
-      leave();
-    });
-  };
-
-  function leave() {
-    if (conn) conn.close();
-    if (peer) peer.destroy();
-    conn = null; peer = null;
-    setNet('혼자 그리는 중', false);
-  }
-  leaveBtn.onclick = leave;
 </script>
 </body>
 </html>
