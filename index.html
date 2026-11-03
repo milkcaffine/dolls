@@ -489,18 +489,46 @@
       return "";
     }
 
+    // 아이템의 규격 태그 집합 추출 (head, body, tags 배열 또는 src 파일명 기반)
+    function extractSizeTags(item) {
+      const tags = new Set();
+      if (item.head) tags.add(item.head);
+      if (item.body) tags.add(item.body);
+      if (Array.isArray(item.tags)) {
+        item.tags.forEach((t) => tags.add(t));
+      }
+      if (tags.size === 0 && item.src) {
+        const srcTag = extractSizeTag(item.src);
+        if (srcTag) tags.add(srcTag);
+      }
+      return Array.from(tags);
+    }
+
+    // 모달이나 상세 정보에 표시할 규격 라벨 포맷팅
+    function formatSizeLabel(item) {
+      if (item.head && item.body && item.head !== item.body) {
+        return `Head: ${item.head} · Body: ${item.body}`;
+      }
+      if (item.head) return item.head;
+      if (item.body) return item.body;
+      if (item._sizeTags && item._sizeTags.length > 0) {
+        return item._sizeTags.join(" / ");
+      }
+      return "";
+    }
+
     // 1. 데이터 평탄화 및 인덱스, 규격 부여
     let globalIndex = 0;
     const allDolls = [];
     const sectionsMeta = (window.DOLL_SECTIONS || []).map((sec) => {
       const items = (sec.items || []).map((item) => {
-        const sizeTag = extractSizeTag(item.src);
+        const sizeTags = extractSizeTags(item);
         const enriched = {
           ...item,
           _origIndex: globalIndex++,
           _sectionId: sec.id,
           _sectionTitle: sec.title,
-          _sizeTag: sizeTag
+          _sizeTags: sizeTags
         };
         allDolls.push(enriched);
         return enriched;
@@ -630,7 +658,7 @@
       container.appendChild(sizeLabel);
 
       SIZE_TAGS.forEach((tag) => {
-        const count = allDolls.filter((d) => d._sizeTag === tag).length;
+        const count = allDolls.filter((d) => d._sizeTags.includes(tag)).length;
         if (count === 0) return;
         const btn = document.createElement("button");
         btn.type = "button";
@@ -704,13 +732,13 @@
         if (currentView !== "all" && item._sectionId !== currentView) return false;
 
         // 2. 태그 칩 필터
-        if (selectedTagType === "size" && item._sizeTag !== selectedTagValue) return false;
+        if (selectedTagType === "size" && !item._sizeTags.includes(selectedTagValue)) return false;
         if (selectedTagType === "head" && !item.name.toLowerCase().includes(selectedTagValue.toLowerCase())) return false;
 
         // 3. 직접 검색어 필터 (이름 또는 규격 매칭)
         if (q) {
           const matchName = item.name.toLowerCase().includes(q);
-          const matchSize = item._sizeTag && item._sizeTag.toLowerCase().includes(q);
+          const matchSize = item._sizeTags.some((t) => t.toLowerCase().includes(q));
           if (!matchName && !matchSize) return false;
         }
 
@@ -877,7 +905,8 @@
 
       const metaParts = [];
       if (item._sectionTitle) metaParts.push(item._sectionTitle);
-      if (item._sizeTag) metaParts.push(item._sizeTag);
+      const sizeLabel = formatSizeLabel(item);
+      if (sizeLabel) metaParts.push(sizeLabel);
       if (item.since) {
         const days = daysSince(item.since);
         metaParts.push(`${item.since}${days ? ` · ${days}` : ""}`);
