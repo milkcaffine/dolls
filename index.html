@@ -88,11 +88,17 @@
       flex-wrap: wrap;
     }
     .chips-label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--faint);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       margin-right: 2px;
+    }
+    .chips-divider {
+      color: var(--line);
+      font-size: 0.8rem;
+      margin: 0 4px;
+      user-select: none;
     }
     .chip {
       background: #141312;
@@ -104,6 +110,9 @@
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .chip:hover {
       border-color: #4a4540;
@@ -111,10 +120,17 @@
       background: #1a1917;
     }
     .chip.active {
-      background: #2b2824;
+      background: #252320;
       border-color: #635d55;
-      color: var(--ink);
+      color: #fff;
       font-weight: 500;
+    }
+    .chip-count {
+      font-size: 0.68rem;
+      color: var(--faint);
+    }
+    .chip.active .chip-count {
+      color: var(--dim);
     }
 
     .filter-section {
@@ -406,21 +422,12 @@
 
     <div class="controls">
       <div class="search-row">
-        <input type="text" id="searchInput" class="search-input" placeholder="인형 이름 검색..." autocomplete="off" spellcheck="false">
+        <input type="text" id="searchInput" class="search-input" placeholder="인형 이름 또는 규격 검색..." autocomplete="off" spellcheck="false">
         <button type="button" id="searchClear" class="search-clear" aria-label="검색어 지우기">&times;</button>
       </div>
 
-      <!-- Quick Chips -->
-      <div class="quick-chips" id="quickChips">
-        <span class="chips-label">TAGS:</span>
-        <button type="button" class="chip" data-tag="SD17">SD17</button>
-        <button type="button" class="chip" data-tag="SDGr">SDGr</button>
-        <button type="button" class="chip" data-tag="DSD">DSD</button>
-        <button type="button" class="chip" data-tag="Williams">Williams</button>
-        <button type="button" class="chip" data-tag="Legulus">Legulus</button>
-        <button type="button" class="chip" data-tag="Michael">Michael</button>
-        <button type="button" class="chip" data-tag="Reda">Reda</button>
-      </div>
+      <!-- Quick Chips (규격 & 주요 헤드) -->
+      <div class="quick-chips" id="quickChips"></div>
 
       <div class="filter-section">
         <div class="ctrl-row">
@@ -469,16 +476,31 @@
     const IMG = "images/";
     const THUMB = "images/thumbs/";
 
-    // 1. 데이터 평탄화 및 인덱스 부여
+    // 이미지 파일명(src)에서 규격(SD17, SDGr, DSD, SD 등) 자동 추출
+    function extractSizeTag(src) {
+      if (!src) return "";
+      const lower = src.toLowerCase();
+      if (lower.startsWith("sd17_")) return "SD17";
+      if (lower.startsWith("sdgr_")) return "SDGr";
+      if (lower.startsWith("sd13_")) return "SD13";
+      if (lower.startsWith("dsd_"))  return "DSD";
+      if (lower.startsWith("usd_"))  return "USD";
+      if (lower.startsWith("sd_"))   return "SD";
+      return "";
+    }
+
+    // 1. 데이터 평탄화 및 인덱스, 규격 부여
     let globalIndex = 0;
     const allDolls = [];
     const sectionsMeta = (window.DOLL_SECTIONS || []).map((sec) => {
       const items = (sec.items || []).map((item) => {
+        const sizeTag = extractSizeTag(item.src);
         const enriched = {
           ...item,
           _origIndex: globalIndex++,
           _sectionId: sec.id,
-          _sectionTitle: sec.title
+          _sectionTitle: sec.title,
+          _sizeTag: sizeTag
         };
         allDolls.push(enriched);
         return enriched;
@@ -486,12 +508,18 @@
       return { id: sec.id, title: sec.title, count: items.length };
     });
 
+    // 태그 정의 (규격 태그 + 인형 이름에서 많은 친구들)
+    const SIZE_TAGS = ["SD17", "SDGr", "DSD", "SD", "SD13"];
+    const HEAD_TAGS = ["Williams", "Legulus", "Michael", "Reda"];
+
     // 상태 관리
     let currentView = "all";   // "all" 또는 특정 section.id
     let currentSort = "random"; // "random" | "newest" | "oldest" | "name" | "default"
+    let selectedTagType = null; // "size" | "head" | null
+    let selectedTagValue = null; // 태그 문자열 | null
     let searchQuery = "";
     let randomOrderMap = new Map();
-    let currentDisplayedList = []; // 현재 화면에 보이는 인형 목록 (모달 이전/다음 네비게이션용)
+    let currentDisplayedList = [];
     let currentModalIndex = -1;
 
     // Fisher-Yates 무작위 순서 키 생성
@@ -590,6 +618,54 @@
       return list.sort((a, b) => a._origIndex - b._origIndex);
     }
 
+    // 퀵 태그 칩 렌더링 (동적 개수 카운트 포함)
+    function renderQuickChips() {
+      const container = document.getElementById("quickChips");
+      container.innerHTML = "";
+
+      // 1. 규격 태그
+      const sizeLabel = document.createElement("span");
+      sizeLabel.className = "chips-label";
+      sizeLabel.textContent = "규격";
+      container.appendChild(sizeLabel);
+
+      SIZE_TAGS.forEach((tag) => {
+        const count = allDolls.filter((d) => d._sizeTag === tag).length;
+        if (count === 0) return;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip" + (selectedTagType === "size" && selectedTagValue === tag ? " active" : "");
+        btn.dataset.type = "size";
+        btn.dataset.tag = tag;
+        btn.innerHTML = `${tag} <span class="chip-count">${count}</span>`;
+        container.appendChild(btn);
+      });
+
+      // 구분선
+      const divider = document.createElement("span");
+      divider.className = "chips-divider";
+      divider.textContent = "·";
+      container.appendChild(divider);
+
+      // 2. 헤드 태그
+      const headLabel = document.createElement("span");
+      headLabel.className = "chips-label";
+      headLabel.textContent = "헤드";
+      container.appendChild(headLabel);
+
+      HEAD_TAGS.forEach((tag) => {
+        const count = allDolls.filter((d) => d.name.toLowerCase().includes(tag.toLowerCase())).length;
+        if (count === 0) return;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip" + (selectedTagType === "head" && selectedTagValue === tag ? " active" : "");
+        btn.dataset.type = "head";
+        btn.dataset.tag = tag;
+        btn.innerHTML = `${tag} <span class="chip-count">${count}</span>`;
+        container.appendChild(btn);
+      });
+    }
+
     function renderViewTabs() {
       const viewTabs = document.getElementById("viewTabs");
       viewTabs.innerHTML = "";
@@ -611,33 +687,47 @@
       });
     }
 
-    function updateQuickChipsActiveState() {
-      const q = searchQuery.trim().toLowerCase();
-      document.querySelectorAll("#quickChips .chip").forEach((chip) => {
-        const tag = chip.dataset.tag.toLowerCase();
-        chip.classList.toggle("active", q === tag);
-      });
-    }
-
     function render() {
       const root = document.getElementById("sections");
       root.innerHTML = "";
 
       const q = searchQuery.trim().toLowerCase();
-      updateQuickChipsActiveState();
+
+      // 태그 칩 활성화 상태 동기화
+      document.querySelectorAll("#quickChips .chip").forEach((chip) => {
+        const isSelected = (chip.dataset.type === selectedTagType && chip.dataset.tag === selectedTagValue);
+        chip.classList.toggle("active", isSelected);
+      });
 
       let filtered = allDolls.filter((item) => {
+        // 1. 브랜드 탭 필터
         if (currentView !== "all" && item._sectionId !== currentView) return false;
-        if (q && !item.name.toLowerCase().includes(q)) return false;
+
+        // 2. 태그 칩 필터
+        if (selectedTagType === "size" && item._sizeTag !== selectedTagValue) return false;
+        if (selectedTagType === "head" && !item.name.toLowerCase().includes(selectedTagValue.toLowerCase())) return false;
+
+        // 3. 직접 검색어 필터 (이름 또는 규격 매칭)
+        if (q) {
+          const matchName = item.name.toLowerCase().includes(q);
+          const matchSize = item._sizeTag && item._sizeTag.toLowerCase().includes(q);
+          if (!matchName && !matchSize) return false;
+        }
+
         return true;
       });
 
       const statusText = document.getElementById("statusText");
-      if (q) {
-        statusText.textContent = `검색 결과: ${filtered.length}개 (전체 ${allDolls.length}개 중)`;
-      } else if (currentView !== "all") {
+      const filterConditions = [];
+      if (selectedTagValue) filterConditions.push(`태그 [${selectedTagValue}]`);
+      if (q) filterConditions.push(`검색어 "${searchQuery}"`);
+      if (currentView !== "all") {
         const currentSec = sectionsMeta.find((s) => s.id === currentView);
-        statusText.textContent = `${currentSec ? currentSec.title : ""} · ${filtered.length}개`;
+        if (currentSec) filterConditions.push(`${currentSec.title}`);
+      }
+
+      if (filterConditions.length > 0) {
+        statusText.textContent = `${filterConditions.join(" · ")} 결과: ${filtered.length}개 (전체 ${allDolls.length}개 중)`;
       } else {
         statusText.textContent = `총 ${filtered.length}개`;
       }
@@ -646,12 +736,13 @@
         currentDisplayedList = [];
         const empty = document.createElement("div");
         empty.className = "empty-msg";
-        empty.textContent = q ? `"${searchQuery}"에 해당하는 인형을 찾을 수 없습니다.` : "등록된 인형이 없습니다.";
+        empty.textContent = filterConditions.length > 0 ? "조건에 해당하는 인형을 찾을 수 없습니다." : "등록된 인형이 없습니다.";
         root.appendChild(empty);
         return;
       }
 
-      if (currentView === "all" && currentSort === "default" && !q) {
+      // 렌더링
+      if (currentView === "all" && currentSort === "default" && !q && !selectedTagValue) {
         currentDisplayedList = [];
         for (const sec of window.DOLL_SECTIONS) {
           const items = sec.items || [];
@@ -682,6 +773,7 @@
       }
     }
 
+    renderQuickChips();
     renderViewTabs();
     render();
 
@@ -709,30 +801,47 @@
     const searchInput = document.getElementById("searchInput");
     const searchClear = document.getElementById("searchClear");
 
-    function executeSearch(query) {
-      searchInput.value = query;
-      searchQuery = query;
-      searchClear.style.display = query ? "block" : "none";
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      searchClear.style.display = searchQuery ? "block" : "none";
+      // 검색창에 직접 텍스트를 치면 태그 칩 선택은 해제하여 자유 검색 모드로 전환
+      if (selectedTagValue) {
+        selectedTagType = null;
+        selectedTagValue = null;
+      }
       render();
-    }
-
-    searchInput.addEventListener("input", (e) => executeSearch(e.target.value));
-
-    searchClear.addEventListener("click", () => {
-      executeSearch("");
-      searchInput.focus();
     });
 
-    // 4. 퀵 태그 칩 클릭
+    searchClear.addEventListener("click", () => {
+      searchInput.value = "";
+      searchQuery = "";
+      searchClear.style.display = "none";
+      selectedTagType = null;
+      selectedTagValue = null;
+      searchInput.focus();
+      render();
+    });
+
+    // 4. 퀵 태그 칩 클릭 (토글)
     document.getElementById("quickChips").addEventListener("click", (e) => {
       const chip = e.target.closest(".chip");
       if (!chip) return;
+      const type = chip.dataset.type;
       const tag = chip.dataset.tag;
-      if (searchQuery.trim().toLowerCase() === tag.toLowerCase()) {
-        executeSearch("");
+
+      if (selectedTagType === type && selectedTagValue === tag) {
+        // 같은 칩 다시 클릭 시 해제
+        selectedTagType = null;
+        selectedTagValue = null;
       } else {
-        executeSearch(tag);
+        selectedTagType = type;
+        selectedTagValue = tag;
+        // 칩을 누르면 텍스트 검색어는 초기화하여 칩 결과에 집중
+        searchInput.value = "";
+        searchQuery = "";
+        searchClear.style.display = "none";
       }
+      render();
     });
 
     // 5. 맨 위로 가기 (Top) 버튼
@@ -768,6 +877,7 @@
 
       const metaParts = [];
       if (item._sectionTitle) metaParts.push(item._sectionTitle);
+      if (item._sizeTag) metaParts.push(item._sizeTag);
       if (item.since) {
         const days = daysSince(item.since);
         metaParts.push(`${item.since}${days ? ` · ${days}` : ""}`);
@@ -829,10 +939,9 @@
     viewModal.addEventListener("touchend", (e) => {
       const diffX = e.changedTouches[0].clientX - touchStartX;
       const diffY = e.changedTouches[0].clientY - touchStartY;
-      // 가로 스와이프 판정 (세로 스크롤과 구분)
       if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
-        if (diffX > 0) showModalItem(currentModalIndex - 1); // 오른쪽으로 쓸어넘기면 이전
-        else showModalItem(currentModalIndex + 1);          // 왼쪽으로 쓸어넘기면 다음
+        if (diffX > 0) showModalItem(currentModalIndex - 1);
+        else showModalItem(currentModalIndex + 1);
       }
     }, { passive: true });
   </script>
