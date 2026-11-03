@@ -21,7 +21,7 @@ window.DOLL_SECTIONS = [
       { src: "sd_nono_w.jpg", name: "nono w", since: "2021-10-17" },
       { src: "sd_rio.jpg", name: "Rio", since: "2024-03-09" },
       { src: "sdgr_f_73_w.jpg", name: "fcs 73 w", since: "2022-04-22" },
-      { src: "sd_school_6.jpg", name: "School 6", since: "2024-05-06" },
+      { src: "sd_school_6.jpg", name: "School 6", since: "2024-05-06", head: "SD", body: "SDGr" },
       { src: "sdgr_f_105.jpg", name: "fcs 105 w", since: "2026-06-07" },
       { src: "sd13_w.jpg", name: "Williams 06", since: "2026-08-19", head: "SD13", body: "SD17" },
       { src: "sd17_w_09cr.jpg", name: "Williams 09 CR", since: "2026-06-24" },
