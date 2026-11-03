@@ -15,6 +15,7 @@
       --dim: #a39e96;
       --faint: #746f68;
       --line: #2a2826;
+      --card-bg: #161513;
     }
     * { box-sizing: border-box; margin: 0; }
     html, body { background: var(--bg); color: var(--ink); }
@@ -23,12 +24,121 @@
       padding: 56px 20px 40px;
     }
     main { width: min(100%, 72rem); margin: 0 auto; }
-    header { margin-bottom: 48px; }
+    header { margin-bottom: 32px; }
     h1 { font-weight: 500; font-size: 1.6rem; letter-spacing: -0.02em; }
     .lede { margin-top: 6px; color: var(--dim); }
     .links { margin-top: 14px; font-size: 0.95rem; }
     a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
     a:hover { border-bottom-color: var(--ink); }
+
+    /* Controls (Search, View, Sort) */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 36px 0 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .search-row {
+      display: flex;
+      align-items: center;
+      position: relative;
+      max-width: 420px;
+    }
+    .search-input {
+      width: 100%;
+      background: #141312;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px 32px 8px 12px;
+      color: var(--ink);
+      font: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus {
+      border-color: #55514b;
+    }
+    .search-input::placeholder {
+      color: var(--faint);
+    }
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      background: none;
+      border: 0;
+      color: var(--faint);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+      padding: 2px 6px;
+      line-height: 1;
+    }
+    .search-clear:hover {
+      color: var(--ink);
+    }
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ctrl-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .ctrl-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--faint);
+      min-width: 38px;
+    }
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .ctrl-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--dim);
+      font: inherit;
+      font-size: 0.82rem;
+      padding: 4px 9px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .ctrl-btn:hover {
+      color: var(--ink);
+      background: #181715;
+    }
+    .ctrl-btn.active {
+      color: var(--ink);
+      background: #23211e;
+      border-color: #383430;
+      font-weight: 500;
+    }
+    .ctrl-count {
+      color: var(--faint);
+      font-size: 0.74rem;
+      margin-left: 3px;
+    }
+    .active .ctrl-count {
+      color: var(--dim);
+    }
+    .status-text {
+      font-size: 0.78rem;
+      color: var(--faint);
+      margin-top: 4px;
+    }
+
+    /* Content & Grid */
     section { margin-top: 28px; }
     h2 {
       font-size: 0.72rem;
@@ -59,7 +169,7 @@
       aspect-ratio: 3 / 4;
       object-fit: cover;
       display: block;
-      background: #161513;
+      background: var(--card-bg);
     }
     button.card span {
       display: inline;
@@ -75,7 +185,17 @@
       color: var(--faint);
     }
     button.card:hover img { outline: 1px solid #3d3935; outline-offset: 3px; }
+
+    .empty-msg {
+      padding: 48px 0;
+      text-align: center;
+      color: var(--dim);
+      font-size: 0.9rem;
+    }
+
     footer { margin-top: 56px; color: var(--faint); font-size: 0.85rem; }
+
+    /* Modal */
     dialog {
       border: 0;
       padding: 0;
@@ -105,6 +225,31 @@
       <p class="lede">Super Dollfie collection.</p>
       <p class="links"><a href="https://x.com/euclidmilk">X @euclidmilk</a> · tools: <a href="x-split.html">x-split</a> · <a href="collage.html">collage</a> · <a href="oekaki.html">oekaki</a></p>
     </header>
+
+    <div class="controls">
+      <div class="search-row">
+        <input type="text" id="searchInput" class="search-input" placeholder="인형 이름 검색..." autocomplete="off" spellcheck="false">
+        <button type="button" id="searchClear" class="search-clear" aria-label="검색어 지우기">&times;</button>
+      </div>
+      <div class="filter-section">
+        <div class="ctrl-row">
+          <span class="ctrl-label">보기</span>
+          <div class="btn-group" id="viewTabs"></div>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">정렬</span>
+          <div class="btn-group" id="sortTabs">
+            <button type="button" class="ctrl-btn active" data-sort="random">무작위 🔀</button>
+            <button type="button" class="ctrl-btn" data-sort="newest">최신순</button>
+            <button type="button" class="ctrl-btn" data-sort="oldest">오래된순</button>
+            <button type="button" class="ctrl-btn" data-sort="name">이름순</button>
+            <button type="button" class="ctrl-btn" data-sort="default">기본순</button>
+          </div>
+        </div>
+      </div>
+      <div class="status-text" id="statusText"></div>
+    </div>
+
     <div id="sections"></div>
     <footer>芝</footer>
   </main>
@@ -113,13 +258,50 @@
     <img alt="">
     <p></p>
   </dialog>
+
   <script src="data.js"></script>
   <script>
     const IMG = "images/";
     const THUMB = "images/thumbs/";
 
+    // 1. 데이터 평탄화 및 인덱스 부여 (인형을 나중에 추가해도 원본 순서 및 브랜드 자동 추적)
+    let globalIndex = 0;
+    const allDolls = [];
+    const sectionsMeta = (window.DOLL_SECTIONS || []).map((sec) => {
+      const items = (sec.items || []).map((item) => {
+        const enriched = {
+          ...item,
+          _origIndex: globalIndex++,
+          _sectionId: sec.id,
+          _sectionTitle: sec.title
+        };
+        allDolls.push(enriched);
+        return enriched;
+      });
+      return { id: sec.id, title: sec.title, count: items.length };
+    });
+
+    // 상태 관리
+    let currentView = "all";   // "all" 또는 특정 section.id
+    let currentSort = "random"; // "random" | "newest" | "oldest" | "name" | "default"
+    let searchQuery = "";
+    let randomOrderMap = new Map();
+
+    // Fisher-Yates 셔플로 새로운 무작위 순서 키 생성
+    function refreshRandomOrder() {
+      const indices = allDolls.map((_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      randomOrderMap = new Map(indices.map((origIdx, order) => [allDolls[origIdx], order]));
+    }
+    refreshRandomOrder();
+
     function daysSince(iso) {
+      if (!iso) return "";
       const parts = iso.split("-").map(Number);
+      if (parts.length < 3) return "";
       const since = new Date(parts[0], parts[1] - 1, parts[2]);
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -131,6 +313,7 @@
       const btn = document.createElement("button");
       btn.className = "card";
       btn.dataset.src = IMG + item.src;
+      btn.dataset.name = item.name;
       if (item.since) btn.dataset.since = item.since;
 
       const img = document.createElement("img");
@@ -150,30 +333,167 @@
       return btn;
     }
 
-    const root = document.getElementById("sections");
-    for (const section of window.DOLL_SECTIONS) {
-      const el = document.createElement("section");
-      const h2 = document.createElement("h2");
-      h2.textContent = section.title;
-      const grid = document.createElement("div");
-      grid.className = "grid";
-      grid.id = section.id;
-      for (const item of section.items) grid.appendChild(card(item));
-      el.append(h2, grid);
-      root.appendChild(el);
+    function sortItems(items) {
+      const list = [...items];
+      if (currentSort === "random") {
+        return list.sort((a, b) => (randomOrderMap.get(a) ?? 0) - (randomOrderMap.get(b) ?? 0));
+      }
+      if (currentSort === "newest") {
+        return list.sort((a, b) => (b.since || "").localeCompare(a.since || ""));
+      }
+      if (currentSort === "oldest") {
+        return list.sort((a, b) => (a.since || "9999").localeCompare(b.since || "9999"));
+      }
+      if (currentSort === "name") {
+        return list.sort((a, b) => a.name.localeCompare(b.name, "ko", { sensitivity: "base" }));
+      }
+      // default: data.js 등록 순서
+      return list.sort((a, b) => a._origIndex - b._origIndex);
     }
 
+    function renderViewTabs() {
+      const viewTabs = document.getElementById("viewTabs");
+      viewTabs.innerHTML = "";
+
+      // '전체' 탭
+      const allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.className = "ctrl-btn" + (currentView === "all" ? " active" : "");
+      allBtn.dataset.view = "all";
+      allBtn.innerHTML = `전체 <span class="ctrl-count">${allDolls.length}</span>`;
+      viewTabs.appendChild(allBtn);
+
+      // 각 브랜드 섹션 탭 (data.js에 새 브랜드 추가 시 자동 반영)
+      sectionsMeta.forEach((sec) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ctrl-btn" + (currentView === sec.id ? " active" : "");
+        btn.dataset.view = sec.id;
+        btn.innerHTML = `${sec.title} <span class="ctrl-count">${sec.count}</span>`;
+        viewTabs.appendChild(btn);
+      });
+    }
+
+    function render() {
+      const root = document.getElementById("sections");
+      root.innerHTML = "";
+
+      const q = searchQuery.trim().toLowerCase();
+
+      // 필터링: 브랜드 선택 + 검색어 매칭
+      let filtered = allDolls.filter((item) => {
+        if (currentView !== "all" && item._sectionId !== currentView) return false;
+        if (q && !item.name.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      // 상태 안내 문구 업데이트
+      const statusText = document.getElementById("statusText");
+      if (q) {
+        statusText.textContent = `검색 결과: ${filtered.length}개 (전체 ${allDolls.length}개 중)`;
+      } else if (currentView !== "all") {
+        const currentSec = sectionsMeta.find((s) => s.id === currentView);
+        statusText.textContent = `${currentSec ? currentSec.title : ""} · ${filtered.length}개`;
+      } else {
+        statusText.textContent = `총 ${filtered.length}개`;
+      }
+
+      if (filtered.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-msg";
+        empty.textContent = q ? `"${searchQuery}"에 해당하는 인형을 찾을 수 없습니다.` : "등록된 인형이 없습니다.";
+        root.appendChild(empty);
+        return;
+      }
+
+      // 렌더링 방식:
+      // currentView === 'all' 이면서 정렬이 'default'일 때는 원래대로 섹션별로 묶어서 보여주고,
+      // 그 외(무작위, 최신순, 이름순 등)이거나 특정 브랜드를 선택했을 때는 정렬된 단일 그리드로 보여줍니다.
+      if (currentView === "all" && currentSort === "default" && !q) {
+        for (const sec of window.DOLL_SECTIONS) {
+          const items = sec.items || [];
+          if (!items.length) continue;
+          const el = document.createElement("section");
+          const h2 = document.createElement("h2");
+          h2.textContent = sec.title;
+          const grid = document.createElement("div");
+          grid.className = "grid";
+          grid.id = sec.id;
+          for (const item of items) grid.appendChild(card(item));
+          el.append(h2, grid);
+          root.appendChild(el);
+        }
+      } else {
+        // 단일 그리드로 정렬 표시
+        const sorted = sortItems(filtered);
+        const el = document.createElement("section");
+        const grid = document.createElement("div");
+        grid.className = "grid";
+        for (const item of sorted) grid.appendChild(card(item));
+        el.appendChild(grid);
+        root.appendChild(el);
+      }
+    }
+
+    // UI 이벤트 바인딩
+    renderViewTabs();
+    render();
+
+    // 1. 보기 탭 클릭
+    document.getElementById("viewTabs").addEventListener("click", (e) => {
+      const btn = e.target.closest(".ctrl-btn");
+      if (!btn) return;
+      currentView = btn.dataset.view;
+      document.querySelectorAll("#viewTabs .ctrl-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      render();
+    });
+
+    // 2. 정렬 탭 클릭
+    document.getElementById("sortTabs").addEventListener("click", (e) => {
+      const btn = e.target.closest(".ctrl-btn");
+      if (!btn) return;
+      const sortType = btn.dataset.sort;
+      if (sortType === "random") {
+        // 무작위 버튼을 누를 때마다 새로 셔플
+        refreshRandomOrder();
+      }
+      currentSort = sortType;
+      document.querySelectorAll("#sortTabs .ctrl-btn").forEach((b) => b.classList.toggle("active", b === btn));
+      render();
+    });
+
+    // 3. 검색 입력 & 클리어
+    const searchInput = document.getElementById("searchInput");
+    const searchClear = document.getElementById("searchClear");
+
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      searchClear.style.display = searchQuery ? "block" : "none";
+      render();
+    });
+
+    searchClear.addEventListener("click", () => {
+      searchInput.value = "";
+      searchQuery = "";
+      searchClear.style.display = "none";
+      searchInput.focus();
+      render();
+    });
+
+    // 4. 모달 다이얼로그 (이벤트 위임 방식으로 재렌더링 시에도 항상 동작)
     const view = document.getElementById("view");
     const shot = view.querySelector("img");
     const cap = view.querySelector("p");
-    document.querySelectorAll("button.card").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        shot.src = btn.dataset.src;
-        shot.alt = btn.querySelector("span").textContent;
-        cap.textContent = btn.querySelector("span").textContent;
-        view.showModal();
-      });
+
+    document.getElementById("sections").addEventListener("click", (e) => {
+      const btn = e.target.closest("button.card");
+      if (!btn) return;
+      shot.src = btn.dataset.src;
+      shot.alt = btn.dataset.name;
+      cap.textContent = btn.dataset.name;
+      view.showModal();
     });
+
     view.addEventListener("click", () => view.close());
   </script>
 </body>
