@@ -4,281 +4,784 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>미니 오에카키 캔버스</title>
+  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
-      background: #eef1f4;
+      background: linear-gradient(135deg, #fdeff9, #e0f0ff);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 10px;
-      touch-action: none;
+      touch-action: manipulation;
     }
-    .wrapper {
-      max-width: 520px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+    .wrapper { max-width: 540px; width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .panel {
+      background: #fff; padding: 10px 14px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
     }
-    .toolbar {
-      background: #ffffff;
-      padding: 10px 14px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-    }
-    .tool-group { display: flex; gap: 6px; align-items: center; }
+    .tool-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .btn {
-      padding: 8px 12px;
-      border: 1px solid #dee2e6;
-      background: #fff;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      padding: 7px 10px; border: 1px solid #dee2e6; background: #fff; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;
+      transition: transform .1s;
     }
-    .btn.active {
-      background: #007aff;
-      color: #fff;
-      border-color: #007aff;
-    }
-    .btn:active { opacity: 0.8; }
+    .btn:active { transform: scale(0.93); }
+    .btn.active { background: #007aff; color: #fff; border-color: #007aff; }
     .btn-save { background: #198754; color: #fff; border-color: #198754; }
-    .controls-bar {
-      background: #ffffff;
-      padding: 10px 14px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
-    }
-    .colors { display: flex; gap: 6px; align-items: center; }
-    .color-dot {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid #dee2e6;
-      cursor: pointer;
-    }
-    .color-dot.active { border-color: #007aff; transform: scale(1.15); }
-    input[type="color"] {
-      width: 26px;
-      height: 26px;
-      border: none;
-      border-radius: 50%;
-      background: none;
-      cursor: pointer;
-    }
-    .brush-size {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #495057;
-    }
+    .btn-fun { background: linear-gradient(90deg,#ff9ad5,#ffb86b); color:#fff; border-color: transparent; }
+    .colors { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #dee2e6; cursor: pointer; }
+    .color-dot.active { border-color: #007aff; transform: scale(1.2); }
+    input[type="color"] { width: 26px; height: 26px; border: none; border-radius: 50%; background: none; cursor: pointer; }
+    .brush-size { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: #495057; }
     input[type="range"] { width: 90px; }
+    .topic { text-align: center; font-weight: 700; color: #d6336c; font-size: 0.95rem; width: 100%; }
     .canvas-card {
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 8px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-      display: flex;
-      justify-content: center;
+      background: #fff; border-radius: 16px; padding: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      display: flex; justify-content: center; position: relative;
     }
-    #oekakiCanvas {
-      background: #ffffff;
-      border: 1px solid #edf0f2;
-      border-radius: 10px;
-      cursor: crosshair;
-      touch-action: none;
-    }
-    .back { text-align: center; margin-bottom: 8px; font-size: 0.85rem; }
+    #oekakiCanvas { background: #fff; border: 1px solid #edf0f2; border-radius: 10px; cursor: crosshair; touch-action: none; }
+    .back { text-align: center; margin-bottom: 4px; font-size: 0.85rem; }
     .back a { color: #007aff; text-decoration: none; }
+    .stamp-row { display: none; gap: 4px; flex-wrap: wrap; }
+    .stamp-row.show { display: flex; }
+    .stamp { font-size: 1.3rem; cursor: pointer; padding: 2px 4px; border-radius: 8px; border: 2px solid transparent; }
+    .stamp.active { border-color: #ff6fb5; background: #fff0f8; }
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 8px; max-height: 340px; overflow-y: auto; touch-action: pan-y; }
+    .gallery .empty { grid-column: 1/-1; color: #adb5bd; font-size: 0.85rem; text-align: center; padding: 16px; }
+    .gitem { border-radius: 10px; overflow: hidden; border: 1px solid #edf0f2; cursor: pointer; background: #fafafa; transition: transform .15s; }
+    .gitem:hover { transform: rotate(-2deg) scale(1.04); }
+    .gitem img { width: 100%; display: block; aspect-ratio: 1; object-fit: cover; }
+    .gitem small { display: block; font-size: 0.65rem; color: #868e96; padding: 3px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 20; align-items: center; justify-content: center; padding: 16px; }
+    .modal.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 16px; padding: 12px; max-width: 520px; width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .modal-box img { width: 100%; border-radius: 10px; }
+    .modal-title { text-align: center; font-size: 0.85rem; font-weight: 600; color: #495057; }
+    .timer { font-weight: 800; font-size: 1.1rem; color: #d6336c; min-width: 48px; }
+    .timer.low { color: #e03131; animation: pulse .5s infinite alternate; }
+    @keyframes pulse { to { transform: scale(1.25); } }
+    .net-status { font-size: 0.8rem; color: #868e96; font-weight: 600; }
+    .net-status.on { color: #198754; }
+    .countdown { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; font-size: 9rem; font-weight: 900; color: #fff; background: rgba(0,0,0,.45); z-index: 30; }
+    .countdown.show { display: flex; }
+    #fx { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
   </style>
 </head>
 <body>
+<canvas id="fx"></canvas>
 <div class="wrapper">
   <div class="back"><a href="index.html">← dolls</a></div>
-  <div class="toolbar">
+
+  <div class="panel">
+    <div class="topic" id="topic">🎲 주사위를 굴려서 오늘의 그림 주제를 받아봐!</div>
+    <div class="tool-group" id="brushes">
+      <button class="btn active" data-brush="pen">✏️ 펜</button>
+      <button class="btn" data-brush="rainbow">🌈 무지개</button>
+      <button class="btn" data-brush="neon">💡 네온</button>
+      <button class="btn" data-brush="spray">🎨 스프레이</button>
+      <button class="btn" data-brush="sparkle">✨ 반짝</button>
+      <button class="btn" data-brush="stamp">🐱 스탬프</button>
+      <button class="btn" data-brush="fill">🪣 채우기</button>
+      <button class="btn" data-brush="eraser">🧹 지우개</button>
+    </div>
+    <div class="stamp-row" id="stampRow"></div>
+  </div>
+
+  <div class="panel">
     <div class="tool-group">
-      <button class="btn active" id="penBtn">✏️ 펜</button>
-      <button class="btn" id="eraserBtn">🧹 지우개</button>
+      <button class="btn" id="symBtn">🪞 대칭 끔</button>
+      <button class="btn btn-fun" id="topicBtn">🎲 주제</button>
+      <button class="btn btn-fun" id="bgBtn">🎨 배경색</button>
     </div>
     <div class="tool-group">
-      <button class="btn" id="undoBtn">↩ 되돌리기</button>
-      <button class="btn" id="clearBtn">전체삭제</button>
-      <button class="btn btn-save" id="saveBtn">저장</button>
+      <button class="btn" id="undoBtn">↩</button>
+      <button class="btn" id="redoBtn">↪</button>
+      <button class="btn" id="clearBtn">🗑</button>
+      <button class="btn btn-fun" id="galleryAddBtn">🖼 갤러리 저장</button>
+      <button class="btn btn-save" id="saveBtn">PNG</button>
     </div>
   </div>
-  <div class="controls-bar">
-    <div class="colors">
-      <div class="color-dot active" data-color="#1a1a1a" style="background: #1a1a1a;"></div>
-      <div class="color-dot" data-color="#ff3b30" style="background: #ff3b30;"></div>
-      <div class="color-dot" data-color="#007aff" style="background: #007aff;"></div>
-      <div class="color-dot" data-color="#34c759" style="background: #34c759;"></div>
-      <div class="color-dot" data-color="#ff9500" style="background: #ff9500;"></div>
+
+  <div class="panel">
+    <div class="tool-group">
+      <select class="btn" id="taSec">
+        <option value="30">30초</option>
+        <option value="60" selected>60초</option>
+        <option value="120">2분</option>
+        <option value="180">3분</option>
+      </select>
+      <button class="btn btn-fun" id="taBtn">⏱ 타임어택</button>
+      <span id="timer" class="timer"></span>
+    </div>
+    <div class="tool-group">
+      <button class="btn" id="relayOut">📤 릴레이 보내기</button>
+      <button class="btn" id="relayIn">📥 이어받기</button>
+      <input type="file" id="relayFile" accept="image/*" style="display:none">
+    </div>
+    <div class="tool-group" style="width:100%">
+      <button class="btn" id="hostBtn">👫 방 만들기</button>
+      <button class="btn" id="joinBtn">🚪 방 참가</button>
+      <button class="btn" id="leaveBtn" style="display:none">❌ 나가기</button>
+      <span id="netStatus" class="net-status">혼자 그리는 중</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="colors" id="colors">
+      <div class="color-dot active" data-color="#1a1a1a" style="background:#1a1a1a"></div>
+      <div class="color-dot" data-color="#ff3b30" style="background:#ff3b30"></div>
+      <div class="color-dot" data-color="#ff9500" style="background:#ff9500"></div>
+      <div class="color-dot" data-color="#ffd60a" style="background:#ffd60a"></div>
+      <div class="color-dot" data-color="#34c759" style="background:#34c759"></div>
+      <div class="color-dot" data-color="#007aff" style="background:#007aff"></div>
+      <div class="color-dot" data-color="#af52de" style="background:#af52de"></div>
+      <div class="color-dot" data-color="#ff6fb5" style="background:#ff6fb5"></div>
       <input type="color" id="customColor" value="#1a1a1a" title="직접 색상 선택">
     </div>
     <div class="brush-size">
-      <span id="sizeLabel">굵기 3</span>
-      <input type="range" id="sizeRange" min="1" max="40" value="3">
+      <span id="sizeLabel">굵기 6</span>
+      <input type="range" id="sizeRange" min="1" max="60" value="6">
     </div>
   </div>
+
   <div class="canvas-card">
     <canvas id="oekakiCanvas"></canvas>
   </div>
+
+  <div class="panel" style="flex-direction:column; align-items:stretch;">
+    <div class="topic" style="text-align:left">🖼 내 갤러리 <span id="galleryCount"></span></div>
+    <div class="gallery" id="gallery"></div>
+  </div>
 </div>
+
+<div class="countdown" id="countdown"></div>
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <img id="modalImg" alt="">
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="tool-group" style="justify-content:center">
+      <button class="btn" id="mEdit">✏️ 이어 그리기</button>
+      <button class="btn btn-save" id="mDown">⬇ 다운로드</button>
+      <button class="btn" id="mDel">🗑 삭제</button>
+      <button class="btn" id="mClose">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const canvas = document.getElementById('oekakiCanvas');
-  const ctx = canvas.getContext('2d');
-  const penBtn = document.getElementById('penBtn');
-  const eraserBtn = document.getElementById('eraserBtn');
-  const undoBtn = document.getElementById('undoBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const saveBtn = document.getElementById('saveBtn');
-  const sizeRange = document.getElementById('sizeRange');
-  const sizeLabel = document.getElementById('sizeLabel');
-  const colorDots = document.querySelectorAll('.color-dot');
-  const customColor = document.getElementById('customColor');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  const fx = document.getElementById('fx');
+  const fctx = fx.getContext('2d');
   const CANVAS_SIZE = 800;
   canvas.width = CANVAS_SIZE;
   canvas.height = CANVAS_SIZE;
+
+  let brush = 'pen';
+  let currentColor = '#1a1a1a';
+  let brushSize = 6;
+  let symmetry = false;
+  let bgColor = '#ffffff';
+  let stampEmoji = '🐱';
+  let hue = 0;
+  let isDrawing = false;
+  let lastX = 0, lastY = 0;
+
+  const topics = [
+    '졸린 고양이', '우주를 여행하는 곰돌이', '비 오는 날의 우산', '피자를 먹는 공룡', '구름 위의 집',
+    '노래하는 개구리', '마법의 숲', '아이스크림 성', '춤추는 로봇', '바닷속 카페',
+    '달에서 낚시하는 토끼', '무지개를 타는 고래', '나만의 괴물 친구', '날아다니는 고구마', '별을 모으는 소녀',
+    '내 방에 나타난 외계인', '꿈속의 놀이공원', '커피 마시는 펭귄', '거대한 햄버거 도시', '미래의 우리 집'
+  ];
+  const stamps = ['🐱','🐶','🐰','🐻','🦊','🐸','⭐','💖','🌸','🍓','🍕','🌈','☁️','🔥','👻','🦄'];
+
+  // ---------- 초기화 ----------
   function resizeDisplayCanvas() {
     const parentWidth = canvas.parentElement.clientWidth - 16;
-    const size = Math.min(parentWidth, 500);
+    const size = Math.min(parentWidth, 520);
     canvas.style.width = size + 'px';
     canvas.style.height = size + 'px';
+    fx.width = innerWidth; fx.height = innerHeight;
   }
   window.addEventListener('resize', resizeDisplayCanvas);
   resizeDisplayCanvas();
-  function clearToWhite() {
-    ctx.fillStyle = '#ffffff';
+
+  function clearToBg() {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
   }
-  clearToWhite();
-  let isDrawing = false;
-  let isEraser = false;
-  let currentColor = '#1a1a1a';
-  let brushSize = 3;
-  let lastX = 0;
-  let lastY = 0;
+  clearToBg();
+
+  // ---------- 히스토리 (undo/redo) ----------
   const history = [];
-  const MAX_HISTORY = 15;
+  let redoStack = [];
+  const MAX_HISTORY = 25;
+  function snapshot() { return ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE); }
   function pushHistory() {
     if (history.length >= MAX_HISTORY) history.shift();
-    history.push(canvas.toDataURL());
+    history.push(snapshot());
+    redoStack = [];
   }
   pushHistory();
+  document.getElementById('undoBtn').onclick = () => {
+    if (history.length > 1) {
+      redoStack.push(history.pop());
+      ctx.putImageData(history[history.length - 1], 0, 0);
+    }
+  };
+  document.getElementById('redoBtn').onclick = () => {
+    if (redoStack.length) {
+      const s = redoStack.pop();
+      history.push(s);
+      ctx.putImageData(s, 0, 0);
+    }
+  };
+  document.getElementById('clearBtn').onclick = () => {
+    if (confirm('캔버스를 모두 지우시겠습니까?')) { clearToBg(); pushHistory(); netSend({ t: 'clear' }); }
+  };
+
+  // ---------- 좌표 ----------
   function getCoordinates(e) {
     const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const t = e.touches ? e.touches[0] : e;
     return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
+      x: (t.clientX - rect.left) * canvas.width / rect.width,
+      y: (t.clientY - rect.top) * canvas.height / rect.height
     };
   }
+
+  // 대칭: 좌우 + 상하 (4방향 거울)
+  function mirrorPoints(x, y) {
+    const C = CANVAS_SIZE;
+    if (!symmetry) return [[x, y]];
+    return [[x, y], [C - x, y], [x, C - y], [C - x, C - y]];
+  }
+
+  function colorNow() {
+    return brush === 'rainbow' ? `hsl(${hue}, 100%, 55%)` : currentColor;
+  }
+
+  // ---------- 그리기 ----------
+  function strokeLine(x0, y0, x1, y1) {
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = brushSize;
+    if (brush === 'eraser') {
+      ctx.strokeStyle = bgColor; ctx.shadowBlur = 0;
+    } else if (brush === 'neon') {
+      ctx.strokeStyle = '#ffffff';
+      ctx.shadowColor = currentColor;
+      ctx.shadowBlur = brushSize * 2 + 6;
+      ctx.lineWidth = Math.max(1, brushSize * 0.6);
+    } else {
+      ctx.strokeStyle = colorNow(); ctx.shadowBlur = 0;
+    }
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  function spray(x, y) {
+    ctx.fillStyle = currentColor;
+    const r = brushSize * 1.5 + 6;
+    for (let i = 0; i < 18; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = Math.sqrt(Math.random()) * r;
+      ctx.fillRect(x + Math.cos(a) * d, y + Math.sin(a) * d, 2, 2);
+    }
+  }
+
+  function sparkle(x, y) {
+    const n = 3;
+    for (let i = 0; i < n; i++) {
+      const px = x + (Math.random() - 0.5) * brushSize * 4;
+      const py = y + (Math.random() - 0.5) * brushSize * 4;
+      const s = Math.random() * brushSize * 0.8 + 4;
+      ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 65%)`;
+      if (i === 0) ctx.fillStyle = currentColor;
+      ctx.beginPath();
+      for (let k = 0; k < 8; k++) {
+        const rr = k % 2 === 0 ? s : s * 0.35;
+        const ang = (Math.PI / 4) * k - Math.PI / 2;
+        ctx.lineTo(px + Math.cos(ang) * rr, py + Math.sin(ang) * rr);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function stamp(x, y) {
+    ctx.font = `${Math.max(24, brushSize * 4)}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(stampEmoji, x, y);
+  }
+
+  // ---------- 채우기 (flood fill) ----------
+  function hexToRgb(c) {
+    const t = document.createElement('canvas').getContext('2d');
+    t.fillStyle = c; t.fillRect(0, 0, 1, 1);
+    const d = t.getImageData(0, 0, 1, 1).data;
+    return [d[0], d[1], d[2]];
+  }
+  function floodFill(sx, sy) {
+    sx = Math.floor(sx); sy = Math.floor(sy);
+    const img = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    const data = img.data;
+    const W = CANVAS_SIZE;
+    const idx = (x, y) => (y * W + x) * 4;
+    const si = idx(sx, sy);
+    const target = [data[si], data[si + 1], data[si + 2]];
+    const fill = hexToRgb(currentColor);
+    if (target[0] === fill[0] && target[1] === fill[1] && target[2] === fill[2]) return;
+    const tol = 40;
+    const match = i => Math.abs(data[i] - target[0]) + Math.abs(data[i + 1] - target[1]) + Math.abs(data[i + 2] - target[2]) <= tol;
+    const stack = [[sx, sy]];
+    while (stack.length) {
+      let [x, y] = stack.pop();
+      while (x >= 0 && match(idx(x, y))) x--;
+      x++;
+      let up = false, down = false;
+      while (x < W && match(idx(x, y))) {
+        const i = idx(x, y);
+        data[i] = fill[0]; data[i + 1] = fill[1]; data[i + 2] = fill[2]; data[i + 3] = 255;
+        if (y > 0) {
+          const m = match(idx(x, y - 1));
+          if (m && !up) { stack.push([x, y - 1]); up = true; } else if (!m) up = false;
+        }
+        if (y < W - 1) {
+          const m = match(idx(x, y + 1));
+          if (m && !down) { stack.push([x, y + 1]); down = true; } else if (!m) down = false;
+        }
+        x++;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  let locked = false; // 타임어택 종료 / 카운트다운 중엔 그리기 금지
+
   function startDraw(e) {
     e.preventDefault();
-    isDrawing = true;
+    if (locked) return;
     const { x, y } = getCoordinates(e);
-    lastX = x;
-    lastY = y;
-    ctx.beginPath();
-    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
-    ctx.fillStyle = isEraser ? '#ffffff' : currentColor;
-    ctx.fill();
+    if (brush === 'fill') {
+      floodFill(x, y);
+      netSend({ t: 'fill', x, y, c: currentColor });
+      pushHistory();
+      return;
+    }
+    isDrawing = true;
+    lastX = x; lastY = y;
+    stepAt(x, y, x, y, true);
   }
+
+  function stepAt(x0, y0, x1, y1, first) {
+    netSend({ t: 'step', b: brush, c: currentColor, s: brushSize, sym: symmetry, e: stampEmoji, x0, y0, x1, y1, first });
+    doStep(x0, y0, x1, y1, first);
+  }
+
+  function doStep(x0, y0, x1, y1, first) {
+    const a = mirrorPoints(x0, y0);
+    const b = mirrorPoints(x1, y1);
+    for (let i = 0; i < a.length; i++) {
+      if (brush === 'spray') spray(b[i][0], b[i][1]);
+      else if (brush === 'sparkle') sparkle(b[i][0], b[i][1]);
+      else if (brush === 'stamp') { if (first) stamp(b[i][0], b[i][1]); }
+      else strokeLine(a[i][0], a[i][1], b[i][0], b[i][1]);
+    }
+  }
+
   function draw(e) {
     if (!isDrawing) return;
     e.preventDefault();
     const { x, y } = getCoordinates(e);
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(x, y);
-    ctx.strokeStyle = isEraser ? '#ffffff' : currentColor;
-    ctx.lineWidth = brushSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.stroke();
-    lastX = x;
-    lastY = y;
-  }
-  function endDraw() {
-    if (isDrawing) {
-      isDrawing = false;
-      pushHistory();
+    if (brush === 'stamp') {
+      // 스탬프는 일정 거리마다 찍기
+      if (Math.hypot(x - lastX, y - lastY) > Math.max(30, brushSize * 4)) {
+        stepAt(x, y, x, y, true);
+        lastX = x; lastY = y;
+      }
+      return;
     }
+    hue = (hue + 4) % 360;
+    stepAt(lastX, lastY, x, y, false);
+    lastX = x; lastY = y;
   }
+
+  function endDraw() {
+    if (isDrawing) { isDrawing = false; pushHistory(); }
+  }
+
   canvas.addEventListener('mousedown', startDraw);
   canvas.addEventListener('mousemove', draw);
   window.addEventListener('mouseup', endDraw);
   canvas.addEventListener('touchstart', startDraw, { passive: false });
   canvas.addEventListener('touchmove', draw, { passive: false });
   window.addEventListener('touchend', endDraw);
-  penBtn.addEventListener('click', () => {
-    isEraser = false;
-    penBtn.classList.add('active');
-    eraserBtn.classList.remove('active');
+
+  // ---------- UI ----------
+  const brushBtns = document.querySelectorAll('#brushes .btn');
+  const stampRow = document.getElementById('stampRow');
+  function setBrush(b) {
+    brush = b;
+    brushBtns.forEach(x => x.classList.toggle('active', x.dataset.brush === b));
+    stampRow.classList.toggle('show', b === 'stamp');
+  }
+  brushBtns.forEach(btn => btn.addEventListener('click', () => setBrush(btn.dataset.brush)));
+
+  stamps.forEach(s => {
+    const el = document.createElement('span');
+    el.className = 'stamp' + (s === stampEmoji ? ' active' : '');
+    el.textContent = s;
+    el.onclick = () => {
+      stampEmoji = s;
+      stampRow.querySelectorAll('.stamp').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+    };
+    stampRow.appendChild(el);
   });
-  eraserBtn.addEventListener('click', () => {
-    isEraser = true;
-    eraserBtn.classList.add('active');
-    penBtn.classList.remove('active');
-  });
+
+  const colorDots = document.querySelectorAll('.color-dot');
+  const customColor = document.getElementById('customColor');
   colorDots.forEach(dot => {
-    dot.addEventListener('click', (e) => {
+    dot.addEventListener('click', () => {
       colorDots.forEach(d => d.classList.remove('active'));
-      e.target.classList.add('active');
-      currentColor = e.target.dataset.color;
+      dot.classList.add('active');
+      currentColor = dot.dataset.color;
       customColor.value = currentColor;
-      if (isEraser) penBtn.click();
+      if (brush === 'eraser') setBrush('pen');
     });
   });
-  customColor.addEventListener('input', (e) => {
+  customColor.addEventListener('input', e => {
     currentColor = e.target.value;
     colorDots.forEach(d => d.classList.remove('active'));
-    if (isEraser) penBtn.click();
+    if (brush === 'eraser') setBrush('pen');
   });
-  sizeRange.addEventListener('input', (e) => {
+
+  const sizeRange = document.getElementById('sizeRange');
+  const sizeLabel = document.getElementById('sizeLabel');
+  sizeRange.addEventListener('input', e => {
     brushSize = parseInt(e.target.value, 10);
     sizeLabel.textContent = `굵기 ${brushSize}`;
   });
-  undoBtn.addEventListener('click', () => {
-    if (history.length > 1) {
-      history.pop();
-      const prev = new Image();
-      prev.src = history[history.length - 1];
-      prev.onload = () => {
-        ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-        ctx.drawImage(prev, 0, 0);
-      };
+
+  const symBtn = document.getElementById('symBtn');
+  symBtn.onclick = () => {
+    symmetry = !symmetry;
+    symBtn.textContent = symmetry ? '🪞 대칭 켬' : '🪞 대칭 끔';
+    symBtn.classList.toggle('active', symmetry);
+  };
+
+  document.getElementById('topicBtn').onclick = () => {
+    const t = topics[Math.floor(Math.random() * topics.length)];
+    document.getElementById('topic').textContent = `🎲 오늘의 주제: ${t}`;
+  };
+
+  // 배경색 바꾸기: 흰 배경이었던 부분만 새 배경색으로 교체
+  document.getElementById('bgBtn').onclick = () => {
+    const pastel = ['#fff7d6', '#ffe3ef', '#dff3ff', '#e6ffe9', '#efe5ff', '#1f1f2e', '#ffffff'];
+    const next = pastel[(pastel.indexOf(bgColor) + 1) % pastel.length];
+    const old = hexToRgb(bgColor), nw = hexToRgb(next);
+    const img = ctx.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (d[i] === old[0] && d[i + 1] === old[1] && d[i + 2] === old[2]) {
+        d[i] = nw[0]; d[i + 1] = nw[1]; d[i + 2] = nw[2];
+      }
     }
-  });
-  clearBtn.addEventListener('click', () => {
-    if (confirm('캔버스를 모두 지우시겠습니까?')) {
-      clearToWhite();
-      pushHistory();
+    ctx.putImageData(img, 0, 0);
+    bgColor = next;
+    pushHistory();
+  };
+
+  // ---------- 저장 + 컨페티 ----------
+  let confetti = [];
+  function burstConfetti() {
+    for (let i = 0; i < 120; i++) {
+      confetti.push({
+        x: innerWidth / 2, y: innerHeight / 3,
+        vx: (Math.random() - 0.5) * 14, vy: Math.random() * -12 - 2,
+        c: `hsl(${Math.random() * 360}, 90%, 60%)`, s: Math.random() * 6 + 3, life: 100
+      });
     }
-  });
-  saveBtn.addEventListener('click', () => {
+    if (confetti.length === 120) animateConfetti();
+  }
+  function animateConfetti() {
+    fctx.clearRect(0, 0, fx.width, fx.height);
+    confetti = confetti.filter(p => p.life > 0);
+    confetti.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.life--;
+      fctx.fillStyle = p.c;
+      fctx.fillRect(p.x, p.y, p.s, p.s);
+    });
+    if (confetti.length) requestAnimationFrame(animateConfetti);
+    else fctx.clearRect(0, 0, fx.width, fx.height);
+  }
+
+  // ---------- 갤러리 (localStorage) ----------
+  const GKEY = 'oekakiGallery';
+  const MAX_GALLERY = 30;
+  const galleryEl = document.getElementById('gallery');
+  const modal = document.getElementById('modal');
+  let openId = null;
+
+  function loadGallery() {
+    try { return JSON.parse(localStorage.getItem(GKEY)) || []; } catch (e) { return []; }
+  }
+  function saveGallery(list) {
+    while (true) {
+      try { localStorage.setItem(GKEY, JSON.stringify(list)); return list; }
+      catch (e) {
+        if (list.length <= 1) { alert('저장 공간이 부족해요 😢'); return null; }
+        list.pop(); // 가장 오래된 것부터 삭제
+      }
+    }
+  }
+  function renderGallery() {
+    const list = loadGallery();
+    document.getElementById('galleryCount').textContent = `(${list.length}/${MAX_GALLERY})`;
+    galleryEl.innerHTML = '';
+    if (!list.length) {
+      galleryEl.innerHTML = '<div class="empty">아직 그림이 없어요. 🖼 갤러리 저장을 눌러보세요!</div>';
+      return;
+    }
+    list.forEach(item => {
+      const d = document.createElement('div');
+      d.className = 'gitem';
+      d.innerHTML = '<img><small></small>';
+      d.querySelector('img').src = item.img;
+      d.querySelector('small').textContent = item.title;
+      d.onclick = () => openModal(item);
+      galleryEl.appendChild(d);
+    });
+  }
+  function openModal(item) {
+    openId = item.id;
+    document.getElementById('modalImg').src = item.img;
+    document.getElementById('modalTitle').textContent = item.title;
+    modal.classList.add('show');
+  }
+  function closeModal() { modal.classList.remove('show'); openId = null; }
+
+  document.getElementById('galleryAddBtn').onclick = () => {
+    const t = document.getElementById('topic').textContent;
+    const defTitle = t.includes('주제:') ? t.split('주제:')[1].trim() : '';
+    const title = prompt('그림 제목을 지어주세요', defTitle || '내 그림');
+    if (title === null) return;
+    addToGallery(title);
+  };
+  function addToGallery(title) {
+    const small = document.createElement('canvas');
+    small.width = small.height = 500;
+    small.getContext('2d').drawImage(canvas, 0, 0, 500, 500);
+    const d = new Date();
+    const item = {
+      id: Date.now(),
+      title: (title.trim() || '무제') + ` · ${d.getMonth() + 1}/${d.getDate()}`,
+      img: small.toDataURL('image/jpeg', 0.85)
+    };
+    const list = loadGallery();
+    list.unshift(item);
+    if (list.length > MAX_GALLERY) list.length = MAX_GALLERY;
+    if (saveGallery(list)) { renderGallery(); burstConfetti(); }
+  }
+  document.getElementById('mClose').onclick = closeModal;
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.getElementById('mDel').onclick = () => {
+    if (!confirm('이 그림을 삭제할까요?')) return;
+    saveGallery(loadGallery().filter(i => i.id !== openId));
+    closeModal(); renderGallery();
+  };
+  document.getElementById('mDown').onclick = () => {
+    const a = document.createElement('a');
+    a.href = document.getElementById('modalImg').src;
+    a.download = `oekaki_${openId}.jpg`;
+    a.click();
+  };
+  document.getElementById('mEdit').onclick = () => {
+    if (!confirm('현재 캔버스를 이 그림으로 바꿀까요?')) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      pushHistory(); closeModal();
+    };
+    img.src = document.getElementById('modalImg').src;
+  };
+  renderGallery();
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
     const link = document.createElement('a');
     link.href = canvas.toDataURL('image/png');
     link.download = `oekaki_${Date.now()}.png`;
     link.click();
+    burstConfetti();
   });
+
+  // ================= ⏱ 타임어택 =================
+  const timerEl = document.getElementById('timer');
+  const cdEl = document.getElementById('countdown');
+  let taInterval = null;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  document.getElementById('taBtn').onclick = async () => {
+    if (taInterval) { stopTimeAttack(false); return; }
+    if (conn) { alert('같이 그리는 중에는 타임어택을 할 수 없어요!'); return; }
+    if (!confirm('캔버스를 지우고 타임어택을 시작할까요?')) return;
+    const sec = parseInt(document.getElementById('taSec').value, 10);
+    const topic = topics[Math.floor(Math.random() * topics.length)];
+    document.getElementById('topic').textContent = `🎲 오늘의 주제: ${topic}`;
+    clearToBg(); pushHistory();
+    locked = true; isDrawing = false;
+    cdEl.classList.add('show');
+    for (const n of ['3', '2', '1', 'GO!']) { cdEl.textContent = n; await sleep(700); }
+    cdEl.classList.remove('show');
+    locked = false;
+    let left = sec;
+    document.getElementById('taBtn').textContent = '⏹ 중단';
+    const tick = () => {
+      timerEl.textContent = `⏱ ${left}`;
+      timerEl.classList.toggle('low', left <= 10);
+      if (left-- <= 0) stopTimeAttack(true, topic);
+    };
+    tick();
+    taInterval = setInterval(tick, 1000);
+  };
+
+  function stopTimeAttack(finished, topic) {
+    clearInterval(taInterval); taInterval = null;
+    timerEl.textContent = ''; timerEl.classList.remove('low');
+    document.getElementById('taBtn').textContent = '⏱ 타임어택';
+    if (finished) {
+      isDrawing = false; locked = true;
+      addToGallery('⏱ ' + topic);
+      setTimeout(() => { alert('⏰ 시간 끝! 그림이 갤러리에 저장됐어요.'); locked = false; }, 300);
+    }
+  }
+
+  // ================= 📤 릴레이 (파일로 이어 그리기) =================
+  document.getElementById('relayOut').onclick = () => {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `oekaki_relay_${Date.now()}.png`;
+    a.click();
+    alert('PNG를 친구에게 보내세요! 친구는 📥 이어받기로 불러와서 이어 그릴 수 있어요.');
+  };
+  document.getElementById('relayIn').onclick = () => document.getElementById('relayFile').click();
+  document.getElementById('relayFile').onchange = e => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      clearToBg();
+      ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      pushHistory();
+      URL.revokeObjectURL(url);
+      netSend({ t: 'img', d: canvas.toDataURL('image/png') });
+    };
+    img.src = url;
+  };
+
+  // ================= 👫 실시간 같이 그리기 (PeerJS / WebRTC) =================
+  let peer = null, conn = null;
+  const PREFIX = 'dolls-oekaki-';
+  const netStatus = document.getElementById('netStatus');
+  const hostBtn = document.getElementById('hostBtn');
+  const joinBtn = document.getElementById('joinBtn');
+  const leaveBtn = document.getElementById('leaveBtn');
+
+  function setNet(text, on) {
+    netStatus.textContent = text;
+    netStatus.classList.toggle('on', !!on);
+    hostBtn.style.display = joinBtn.style.display = (peer ? 'none' : '');
+    leaveBtn.style.display = peer ? '' : 'none';
+  }
+  function netSend(msg) { if (conn && conn.open) conn.send(msg); }
+
+  function ensurePeerLib() {
+    if (typeof Peer === 'undefined') { alert('PeerJS를 불러오지 못했어요. 인터넷 연결을 확인해주세요.'); return false; }
+    return true;
+  }
+
+  function setupConn(c, isHost) {
+    conn = c;
+    c.on('open', () => {
+      setNet('🟢 친구와 연결됨!', true);
+      if (isHost) c.send({ t: 'img', d: canvas.toDataURL('image/png') });
+    });
+    c.on('data', onNetData);
+    c.on('close', () => { conn = null; setNet(peer ? '친구가 나갔어요' : '혼자 그리는 중', false); });
+  }
+
+  function onNetData(m) {
+    if (m.t === 'step') {
+      const sv = { brush, currentColor, brushSize, symmetry, stampEmoji };
+      brush = m.b; currentColor = m.c; brushSize = m.s; symmetry = m.sym; stampEmoji = m.e;
+      doStep(m.x0, m.y0, m.x1, m.y1, m.first);
+      ({ brush, currentColor, brushSize, symmetry, stampEmoji } = sv);
+    } else if (m.t === 'fill') {
+      const sv = currentColor; currentColor = m.c;
+      floodFill(m.x, m.y);
+      currentColor = sv;
+    } else if (m.t === 'clear') {
+      clearToBg();
+    } else if (m.t === 'img') {
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img, 0, 0, CANVAS_SIZE, CANVAS_SIZE); pushHistory(); };
+      img.src = m.d;
+    }
+  }
+
+  hostBtn.onclick = () => {
+    if (!ensurePeerLib()) return;
+    const code = Math.random().toString(36).slice(2, 6).toUpperCase();
+    peer = new Peer(PREFIX + code);
+    setNet('방 만드는 중...', false);
+    peer.on('open', () => {
+      setNet(`방 코드: ${code} (친구에게 알려주세요)`, false);
+    });
+    peer.on('connection', c => {
+      if (conn) { c.close(); return; }
+      setupConn(c, true);
+    });
+    peer.on('error', err => {
+      if (err.type === 'unavailable-id') { leave(); hostBtn.click(); return; }
+      alert('연결 오류: ' + err.type); leave();
+    });
+  };
+
+  joinBtn.onclick = () => {
+    if (!ensurePeerLib()) return;
+    const code = (prompt('친구의 방 코드를 입력하세요') || '').trim().toUpperCase();
+    if (!code) return;
+    if (!confirm('참가하면 내 캔버스가 방장의 그림으로 바뀌어요. 계속할까요?')) return;
+    peer = new Peer();
+    setNet('연결 중...', false);
+    peer.on('open', () => setupConn(peer.connect(PREFIX + code, { reliable: true }), false));
+    peer.on('error', err => {
+      alert(err.type === 'peer-unavailable' ? '그 방을 찾을 수 없어요 😢' : '연결 오류: ' + err.type);
+      leave();
+    });
+  };
+
+  function leave() {
+    if (conn) conn.close();
+    if (peer) peer.destroy();
+    conn = null; peer = null;
+    setNet('혼자 그리는 중', false);
+  }
+  leaveBtn.onclick = leave;
 </script>
 </body>
 </html>
