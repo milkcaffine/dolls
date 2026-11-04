@@ -31,6 +31,32 @@
     a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
     a:hover { border-bottom-color: var(--ink); }
 
+    /* Upcoming milestones */
+    .upcoming {
+      display: none;
+      margin: 20px 0 0;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .upcoming.is-visible { display: block; }
+    .upcoming-label {
+      color: var(--dim);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .upcoming-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+    }
+    .upcoming-item { color: var(--ink); }
+    .upcoming-item.is-today { color: #f5d49e; }
+
     /* Controls (Search, Chips, View, Sort) */
     .controls {
       display: flex;
@@ -420,6 +446,11 @@
       <p class="links"><a href="https://x.com/euclidmilk">X @euclidmilk</a> · tools: <a href="x-split.html">x-split</a> · <a href="collage.html">collage</a> · <a href="oekaki.html">oekaki</a></p>
     </header>
 
+    <div id="upcomingSection" class="upcoming" hidden>
+      <div class="upcoming-label">다가오는 기념일</div>
+      <div class="upcoming-list" id="upcomingList"></div>
+    </div>
+
     <div class="controls">
       <div class="search-row">
         <input type="text" id="searchInput" class="search-input" placeholder="인형 이름 또는 규격 검색..." autocomplete="off" spellcheck="false">
@@ -572,7 +603,7 @@
       return Number.isNaN(days) ? "" : days.toLocaleString("ko-KR") + "일";
     }
 
-    // 기념일(도착 N주년) 계산
+    // 기념일(도착 N주년) 계산 — 카드 배지용 (이번 달)
     function getAnniversary(iso) {
       if (!iso) return null;
       const parts = iso.split("-").map(Number);
@@ -593,6 +624,110 @@
         return { isToday: false, label: `🎂 ${years}주년 (${sMonth}.${String(sDay).padStart(2, "0")})` };
       }
       return null;
+    }
+
+    const UPCOMING_WITHIN_DAYS = 30;
+
+    function daysUntilNextAnniversary(iso) {
+      const parts = iso.split("-").map(Number);
+      if (parts.length < 3) return null;
+      const [y, m, d] = parts;
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let next = new Date(today.getFullYear(), m - 1, d);
+      if (next < today) next = new Date(today.getFullYear() + 1, m - 1, d);
+      const years = next.getFullYear() - y;
+      if (years < 1) return null;
+      const daysLeft = Math.round((next - today) / 86400000);
+      return {
+        label: daysLeft === 0 ? `오늘 ${years}주년` : `${years}주년`,
+        daysLeft,
+        isToday: daysLeft === 0,
+      };
+    }
+
+    function getUpcomingMilestones(item) {
+      if (!item.since) return [];
+      const parts = item.since.split("-").map(Number);
+      if (parts.length < 3) return [];
+      const since = new Date(parts[0], parts[1] - 1, parts[2]);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const daysOwned = Math.floor((today - since) / 86400000);
+      if (Number.isNaN(daysOwned) || daysOwned < 0) return [];
+
+      const results = [];
+
+      // 1000일 단위 (다음 하나만; 당일 포함)
+      const nextThousand = Math.max(1000, Math.ceil(daysOwned / 1000) * 1000);
+      if (nextThousand <= 20000) {
+        const daysLeft = nextThousand - daysOwned;
+        if (daysLeft >= 0 && daysLeft <= UPCOMING_WITHIN_DAYS) {
+          results.push({
+            type: "days",
+            label: daysLeft === 0 ? `오늘 ${nextThousand.toLocaleString("ko-KR")}일` : `${nextThousand.toLocaleString("ko-KR")}일`,
+            daysLeft,
+            isToday: daysLeft === 0,
+          });
+        }
+      }
+
+      // 같은 숫자 반복 (1111, 2222, …)
+      for (let d = 1; d <= 9; d++) {
+        const target = parseInt(String(d).repeat(4), 10);
+        if (target < daysOwned) continue;
+        const daysLeft = target - daysOwned;
+        if (daysLeft >= 0 && daysLeft <= UPCOMING_WITHIN_DAYS) {
+          results.push({
+            type: "repeat",
+            label: daysLeft === 0 ? `오늘 ${target}일` : `${target}일`,
+            daysLeft,
+            isToday: daysLeft === 0,
+          });
+        }
+        break; // 다음 반복숫자 하나만
+      }
+
+      // 생일(주년)
+      const anniv = daysUntilNextAnniversary(item.since);
+      if (anniv && anniv.daysLeft <= UPCOMING_WITHIN_DAYS) {
+        results.push({ type: "anniv", ...anniv });
+      }
+
+      return results;
+    }
+
+    function renderUpcoming() {
+      const section = document.getElementById("upcomingSection");
+      const list = document.getElementById("upcomingList");
+      if (!section || !list) return;
+
+      const upcoming = [];
+      allDolls.forEach((item) => {
+        getUpcomingMilestones(item).forEach((m) => {
+          upcoming.push({ name: item.name, ...m });
+        });
+      });
+
+      upcoming.sort((a, b) => a.daysLeft - b.daysLeft || a.name.localeCompare(b.name, "ko"));
+
+      list.innerHTML = "";
+      if (upcoming.length === 0) {
+        section.hidden = true;
+        section.classList.remove("is-visible");
+        return;
+      }
+
+      upcoming.slice(0, 8).forEach((u) => {
+        const span = document.createElement("span");
+        span.className = "upcoming-item" + (u.isToday ? " is-today" : "");
+        const left = u.isToday ? "" : ` (${u.daysLeft}일 남음)`;
+        span.textContent = `${u.name} · ${u.label}${left}`;
+        list.appendChild(span);
+      });
+
+      section.hidden = false;
+      section.classList.add("is-visible");
     }
 
     function card(item, displayIndex) {
@@ -716,6 +851,8 @@
     }
 
     function render() {
+      renderUpcoming();
+
       const root = document.getElementById("sections");
       root.innerHTML = "";
 
