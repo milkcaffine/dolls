@@ -629,6 +629,15 @@
 
     const UPCOMING_WITHIN_DAYS = 30;
 
+    function formatMonthDay(date) {
+      return `${date.getMonth() + 1}.${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function dateAfterDays(today, daysLeft) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysLeft);
+      return formatMonthDay(d);
+    }
+
     function daysUntilNextAnniversary(iso) {
       const parts = iso.split("-").map(Number);
       if (parts.length < 3) return null;
@@ -641,7 +650,8 @@
       if (years < 1) return null;
       const daysLeft = Math.round((next - today) / 86400000);
       return {
-        label: daysLeft === 0 ? `오늘 ${years}주년` : `${years}주년`,
+        label: `${years}주년`,
+        dateLabel: formatMonthDay(next),
         daysLeft,
         isToday: daysLeft === 0,
       };
@@ -666,7 +676,8 @@
         if (daysLeft >= 0 && daysLeft <= UPCOMING_WITHIN_DAYS) {
           results.push({
             type: "days",
-            label: daysLeft === 0 ? `오늘 ${nextThousand.toLocaleString("ko-KR")}일` : `${nextThousand.toLocaleString("ko-KR")}일`,
+            label: `${nextThousand.toLocaleString("ko-KR")}일`,
+            dateLabel: dateAfterDays(today, daysLeft),
             daysLeft,
             isToday: daysLeft === 0,
           });
@@ -681,7 +692,8 @@
         if (daysLeft >= 0 && daysLeft <= UPCOMING_WITHIN_DAYS) {
           results.push({
             type: "repeat",
-            label: daysLeft === 0 ? `오늘 ${target}일` : `${target}일`,
+            label: `${target}일`,
+            dateLabel: dateAfterDays(today, daysLeft),
             daysLeft,
             isToday: daysLeft === 0,
           });
@@ -722,8 +734,8 @@
       upcoming.slice(0, 8).forEach((u) => {
         const span = document.createElement("span");
         span.className = "upcoming-item" + (u.isToday ? " is-today" : "");
-        const left = u.isToday ? "" : ` (${u.daysLeft}일 남음)`;
-        span.textContent = `${u.name} · ${u.label}${left}`;
+        const when = u.isToday ? "오늘" : `${u.daysLeft}일 남음`;
+        span.textContent = `${u.name} · ${u.label} · ${u.dateLabel} · ${when}`;
         list.appendChild(span);
       });
 
