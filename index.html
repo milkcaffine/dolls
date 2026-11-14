@@ -23,7 +23,39 @@
       font-family: "IBM Plex Sans", "Noto Sans KR", system-ui, sans-serif;
       padding: 56px 20px 40px;
     }
-    main { width: min(100%, 72rem); margin: 0 auto; }
+    main { width: min(100%, 72rem); margin: 0 auto; position: relative; z-index: 1; }
+    #atelierBgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .atelier-hud {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 20;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      background: rgba(22, 21, 19, 0.8);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      backdrop-filter: blur(6px);
+    }
+    .atelier-audio-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      font: inherit;
+      cursor: pointer;
+      padding: 0;
+      transition: color 0.15s ease;
+    }
+    .atelier-audio-btn:hover { color: var(--ink); }
+    .atelier-audio-btn.is-on { color: #f5d49e; }
     header { margin-bottom: 28px; }
     h1 { font-weight: 500; font-size: 1.6rem; letter-spacing: -0.02em; }
     .lede { margin-top: 6px; color: var(--dim); }
@@ -1126,5 +1158,10 @@
       }
     }, { passive: true });
   </script>
+  <canvas id="atelierBgCanvas" aria-hidden="true"></canvas>
+  <div class="atelier-hud">
+    <button type="button" id="atelierAudioBtn" class="atelier-audio-btn is-on">♪ ATELIER: ON</button>
+  </div>
+  <script src="atelier-bg.js" defer></script>
 </body>
 </html>
